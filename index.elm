@@ -3,22 +3,26 @@ import Html (..)
 import Window
 import Json
 import Dict
+import Http
+
+server = "http://localhost:4008"
+colorBg1 = hsl (degrees 200) 0.5 0.5
+colorBg2 = rgb 0 1 0
 
 main = scene <~ Window.dimensions ~ (toCard <~ json)
 
-scene (w,h) card =
-    Html.toElement w h (game card)
+scene : (Int,Int) -> Maybe Card -> Element
+scene dim card = case card of
+  Just card -> cardScene dim card
+  Nothing -> asText "No card"
 
-game : Maybe Card -> Html
-game mcard =
-  case mcard of
-  Just card -> 
-    node "div" [ "className" := "profile" ] []
-      [ node "img" [ "src" := card.question ] [] []
-      , node "div" [] []
-        (map (\x -> text x) card.choices)
-      ]
-  Nothing -> node "div" [] [] [ text "No card" ]
+cardScene : (Int, Int) -> Card -> Element
+cardScene (w,h) card =
+  collage w h [
+    gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
+    toForm <| fittedImage 300 300 card.question,
+    moveY -200 <| toForm <| plainText <| join "\n" card.choices
+    ]
 
 type Card = {
   question:String,
@@ -54,8 +58,12 @@ toCard json =
       }
     _ -> Nothing
 
+parseJson : Http.Response String -> Json.Value
+parseJson r = case r of
+  Http.Success s -> case Json.fromString s of
+    Just v -> v
+    Nothing -> Json.Null
+  _ -> Json.Null
+
 json : Signal Json.Value
-json = constant (Json.Object (Dict.fromList [
-  ("question", Json.String "http://placekitten.com/g/400/160"),
-  ("choices", Json.Array (map Json.String ["Aaron", "Drew", "Alex", "Jessica"]))
-  ]))
+json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
