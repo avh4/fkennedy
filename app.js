@@ -9,7 +9,7 @@ server.route({
   method: 'GET',
   path: '/api/v1/testCards',
   handler: function(request, reply){
-    reply({test: "I'm a test card!"});
+    reply(flashCards.getFlashCard())
   }
 });
 
