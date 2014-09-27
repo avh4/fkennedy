@@ -1,4 +1,5 @@
 var Hapi = require('hapi');
+var flashCards = require('./flashCardService.js');
 
 var host = 'localhost';
 var port = process.env.PORT || 4008;
@@ -6,9 +7,9 @@ var server = new Hapi.Server(host, port);
 
 server.route({
   method: 'GET',
-  path: '/',
+  path: '/api/v1/testCards',
   handler: function(request, reply){
-  reply('^_^');
+    reply(flashCards.getFlashCard())
   }
 });
 
