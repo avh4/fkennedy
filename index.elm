@@ -9,24 +9,27 @@ server = "http://localhost:4008"
 colorBg1 = hsl (degrees 200) 0.5 0.5
 colorBg2 = rgb 0 1 0
 
-main = scene <~ Window.dimensions ~ (toCard <~ json)
+main = scene <~ Window.dimensions ~ (toCard <~ json) ~ (every second)
 
-scene : (Int,Int) -> Maybe Card -> Element
-scene dim card = case card of
-  Just card -> cardScene dim card
+scene : (Int,Int) -> Maybe Card -> Time -> Element
+scene dim card now = case card of
+  Just card -> cardScene dim card now
   Nothing -> asText "No card"
 
-cardScene : (Int, Int) -> Card -> Element
-cardScene (w,h) card =
+cardScene : (Int, Int) -> Card -> Time -> Element
+cardScene (w,h) card now =
   collage w h [
     gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
     toForm <| fittedImage 300 300 card.question,
-    moveY -200 <| toForm <| plainText <| join "\n" card.choices
+    moveY -200 <| toForm <| plainText <| join "\n" card.choices,
+    moveY 200 <| toForm <| plainText <| show <| floor <| inSeconds (card.start - now + (toFloat card.time))
     ]
 
 type Card = {
   question:String,
-  choices:[String]
+  choices:[String],
+  start:Time,
+  time:Int
 }
 
 parseCardImage : (Dict.Dict String Json.Value) -> String
@@ -54,7 +57,9 @@ toCard json =
     Json.Object c ->
       Just {
       question = parseCardImage c,
-      choices= parseCardChoices c
+      choices = parseCardChoices c,
+      start = 1411859740 * second,
+      time = 10
       }
     _ -> Nothing
 
