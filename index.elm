@@ -3,6 +3,9 @@ import Html (..)
 import Window
 import Json
 import Dict
+import Http
+
+server = "http://localhost:4008"
 
 main = scene <~ Window.dimensions ~ (toCard <~ json)
 
@@ -54,8 +57,12 @@ toCard json =
       }
     _ -> Nothing
 
+parseJson : Http.Response String -> Json.Value
+parseJson r = case r of
+  Http.Success s -> case Json.fromString s of
+    Just v -> v
+    Nothing -> Json.Null
+  _ -> Json.Null
+
 json : Signal Json.Value
-json = constant (Json.Object (Dict.fromList [
-  ("question", Json.String "http://placekitten.com/g/400/160"),
-  ("choices", Json.Array (map Json.String ["Aaron", "Drew", "Alex", "Jessica"]))
-  ]))
+json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
