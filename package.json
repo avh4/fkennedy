@@ -14,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/avh4/fkennedy/issues"
   },
-  "homepage": "https://github.com/avh4/fkennedy"
+  "homepage": "https://github.com/avh4/fkennedy",
+  "dependencies": {
+    "hapi": "^6.9.0"
+  }
 }
