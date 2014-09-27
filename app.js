@@ -10,7 +10,9 @@ server.route({
   method: 'GET',
   path: '/api/v1/testCards',
   handler: function(request, reply){
-    reply(flashCards.getFlashCard())
+    var nextCard = flashCards.getFlashCard();
+    nextCard.timeStamp = new Date().getTime() / 100;
+    reply(nextCard);
   }
 });
 
