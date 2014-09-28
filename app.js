@@ -1,5 +1,4 @@
 var Hapi = require('hapi');
-var flashCards = require('./flashCardService.js');
 var roundHandler = require('./roundHandler.js');
 
 var host = 'localhost';
@@ -10,17 +9,16 @@ server.route({
   method: 'GET',
   path: '/api/v1/testCards',
   handler: function(request, reply){
-    var nextCard = flashCards.getFlashCard();
-    nextCard.timeStamp = new Date().getTime() / 1000;
+    var nextCard = roundHandler.startNewRound();
     reply(nextCard);
   }
 });
 
 server.route({
   method: 'GET',
-  path: '/api/v1/answer',
+  path: '/api/v1/reportScore',
   handler: function(request, reply){
-    roundHandler(request.url.query);
+    roundHandler.endRound(request.url.query);
     reply('200: OK');
   }
 });

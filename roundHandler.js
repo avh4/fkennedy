@@ -1,5 +1,24 @@
-var roundHandler = function(message){
+var flashCards = require('./flashCardService.js');
+var currentRound;
+
+var startNewRound = function(){
 
 }
 
-module.exports = roundHandler;
+var reportScore = function(message){
+
+}
+
+var endRound = function(){
+
+}
+
+var reportRound = function(){
+
+}
+
+module.exports = {
+  startNewRound: startNewRound,
+  reportScore: reportScore,
+  endRound: endRound
+}
