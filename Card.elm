@@ -23,43 +23,37 @@ unm {question, choices, start, time} =
           Nothing -> Nothing
           Just t -> Just { question=q, choices=c, start=s, time=t }
 
-parseUrl : String -> (Dict.Dict String Json.Value) -> Maybe String
-parseUrl key d =
-  let v = Dict.getOrElse (Json.Null) key d
-  in case v of
-    Json.String s -> Just s
-    _ -> Nothing
-
 parseString : Json.Value -> Maybe String
 parseString v = case v of
   Json.String s -> Just s
   _ -> Nothing
 
-parseStringArray : String -> (Dict.Dict String Json.Value) -> Maybe [String]
-parseStringArray key d =
-  let v = Dict.getOrElse (Json.Null) key d
-  in case v of
-    Json.Array a -> Just <| filterMap identity <| map parseString a
-    _ -> Nothing
+p : String -> (Json.Value -> Maybe a) -> (Dict.Dict String Json.Value) -> Maybe a
+p key fn d = case (Dict.get key d) of
+  Just v -> fn v
+  Nothing -> Nothing
 
-parseFloat : String -> (Dict.Dict String Json.Value) -> Maybe Float
-parseFloat key d =
-  let v = Dict.getOrElse (Json.Null) key d
-  in case v of
-    Json.Number f -> Just f
-    _ -> Nothing
+parseStringArray : Json.Value -> Maybe [String]
+parseStringArray v = case v of
+  Json.Array a -> Just <| filterMap identity <| map parseString a
+  _ -> Nothing
 
-parseInt : String -> (Dict.Dict String Json.Value) -> Maybe Int
-parseInt key d = Maybe.map floor <| parseFloat key d
+parseFloat : Json.Value -> Maybe Float
+parseFloat v = case v of
+  Json.Number f -> Just f
+  _ -> Nothing
+
+parseInt : Json.Value -> Maybe Int
+parseInt v = Maybe.map floor <| parseFloat v
 
 toCard : Json.Value -> Maybe Card
 toCard json = 
   case json of
     Json.Object c ->
       unm {
-      question = parseUrl "question" c,
-      choices = parseStringArray "choices" c,
-      start = Maybe.map (\x -> second * x) <| parseFloat "timeStamp" c,
-      time = parseInt "time" c
+      question = p "question" parseString c,
+      choices = p "chocies" parseStringArray c,
+      start = Maybe.map (\x -> second * x) <| p "timeStamp" parseFloat c,
+      time = p "time" parseInt c
       }
     _ -> Nothing
