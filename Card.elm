@@ -1,8 +1,7 @@
 module Card where
 
-import Dict
 import Json
-import Maybe
+import Parse
 
 type Card = {
   question:String,
@@ -23,40 +22,14 @@ unm {question, choices, start, time} =
           Nothing -> Nothing
           Just t -> Just { question=q, choices=c, start=s, time=t }
 
-parseString : Json.Value -> Maybe String
-parseString v = case v of
-  Json.String s -> Just s
-  _ -> Nothing
-
-p : String -> (Json.Value -> Maybe a) -> (Dict.Dict String Json.Value) -> Maybe a
-p key fn d = case (Dict.get key d) of
-  Just v -> fn v
-  Nothing -> Nothing
-
-parseStringArray : Json.Value -> Maybe [String]
-parseStringArray v = case v of
-  Json.Array a -> Just <| filterMap identity <| map parseString a
-  _ -> Nothing
-
-parseFloat : Json.Value -> Maybe Float
-parseFloat v = case v of
-  Json.Number f -> Just f
-  _ -> Nothing
-
-parseInt : Json.Value -> Maybe Int
-parseInt v = Maybe.map floor <| parseFloat v
-
-parseTimestamp : Json.Value -> Maybe Time
-parseTimestamp v = Maybe.map (\x -> second * x) <| parseFloat v
-
 toCard : Json.Value -> Maybe Card
 toCard json = 
   case json of
     Json.Object c ->
       unm {
-      question = p "question" parseString c,
-      choices = p "chocies" parseStringArray c,
-      start =  p "timeStamp" parseTimestamp c,
-      time = p "time" parseInt c
+      question = Parse.p "question" Parse.string c,
+      choices = Parse.p "chocies" Parse.stringArray c,
+      start =  Parse.p "timeStamp" Parse.timestamp c,
+      time = Parse.p "time" Parse.int c
       }
     _ -> Nothing
