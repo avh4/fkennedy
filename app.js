@@ -24,3 +24,4 @@ server.route({
 
 server.start();
 console.log('Listening on port', port);
+roundHandler.startGame();

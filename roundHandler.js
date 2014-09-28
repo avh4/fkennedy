@@ -33,10 +33,13 @@ var getCurrentRound = function(){
   return currentRound;
 }
 
-startNewRound();
+var startGame = function(){
+  startNewRound();
+}
 
 module.exports = {
   reportScore: reportScore,
-  getCurrentRound: getCurrentRound
+  getCurrentRound: getCurrentRound,
+  startGame: startGame
 }
 
