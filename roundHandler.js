@@ -12,6 +12,7 @@ currentRound.timeRemaining = function(){
 var startNewRound = function(){
   currentRound.card = flashCards.getFlashCard();
   currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
+  setTimeout(endRound, currentRound.timeRemaining());
 }
 
 var reportScore = function(message){
@@ -19,7 +20,9 @@ var reportScore = function(message){
 }
 
 var endRound = function(){
-
+  reportRound();
+  currentRound.card = null;
+  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 
 var reportRound = function(){
