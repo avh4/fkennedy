@@ -6,5 +6,13 @@ client.on('error', function(err){
 });
 
 var saveRound = function(round){
-  console.log(round);
+  for(user in round.responses){
+    console.log(user);
+    client.sadd('users', user);
+    if(round.responses[user].correctAnswer) client.incr(user + ':score');
+  }
+}
+
+module.exports = {
+  saveRound: saveRound
 }
