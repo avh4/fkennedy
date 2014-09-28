@@ -32,6 +32,7 @@ var endRound = function(){
   currentRound.status = 'inactive';
   storage.saveRound(currentRound);
   currentRound.card = null;
+  currentRound.responses = undefined;
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 

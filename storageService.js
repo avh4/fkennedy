@@ -1,5 +1,12 @@
 var redis = require('redis');
-var client = redis.createClient();
+var url = require('url');
+
+if(process.env.REDISTOGO_URL){
+  var redisURL = url.parse(process.env.REDISTOGO_URL);
+  var client = redis.createClient(redisURL.port, rediURL.hostname);
+} else {
+  var client = redis.createClient();
+}
 
 client.on('error', function(err){
   console.error(err);
@@ -13,6 +20,11 @@ var saveRound = function(round){
   }
 }
 
+var getScores = function(){
+
+}
+
 module.exports = {
-  saveRound: saveRound
+  saveRound: saveRound,
+  getScores: getScores
 }

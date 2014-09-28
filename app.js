@@ -23,6 +23,14 @@ server.route({
 });
 
 server.route({
+  method: 'GET',
+  path: '/api/v1/scores',
+  handler: function(request, reply){
+    reply(storageService.getScores());
+  }
+});
+
+server.route({
 	method: 'GET',
 	path: '/index.html',
 	handler: { file: 'build/index.html' }
