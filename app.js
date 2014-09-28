@@ -22,6 +22,14 @@ server.route({
   }
 });
 
+server.route({
+  method: 'GET',
+  path: '/api/v1/scores',
+  handler: function(request, reply){
+    reply(storageService.getScores());
+  }
+})
+
 server.start();
 console.log('Listening on port', port);
 roundHandler.startGame();
