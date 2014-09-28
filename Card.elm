@@ -30,16 +30,16 @@ parseUrl key d =
     Json.String s -> Just s
     _ -> Nothing
 
-parseString : Json.Value -> String
+parseString : Json.Value -> Maybe String
 parseString v = case v of
-  Json.String s -> s
-  _ -> "STRANGE JSON"
+  Json.String s -> Just s
+  _ -> Nothing
 
 parseStringArray : String -> (Dict.Dict String Json.Value) -> Maybe [String]
 parseStringArray key d =
   let v = Dict.getOrElse (Json.Null) key d
   in case v of
-    Json.Array a -> Just <| map parseString a
+    Json.Array a -> Just <| filterMap identity <| map parseString a
     _ -> Nothing
 
 parseFloat : String -> (Dict.Dict String Json.Value) -> Maybe Float
