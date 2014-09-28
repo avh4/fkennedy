@@ -38,9 +38,9 @@ type Card = {
   time:Int
 }
 
-parseCardImage : (Dict.Dict String Json.Value) -> String
-parseCardImage d =
-  let v = Dict.getOrElse (Json.String "BAD") "question" d
+parseUrl : String -> (Dict.Dict String Json.Value) -> String
+parseUrl key d =
+  let v = Dict.getOrElse (Json.String "BAD") key d
   in case v of
     Json.String s -> s
     _ -> "BAD"
@@ -50,9 +50,9 @@ parseString v = case v of
   Json.String s -> s
   _ -> "STRANGE JSON"
 
-parseCardChoices : (Dict.Dict String Json.Value) -> [String]
-parseCardChoices d =
-  let v = Dict.getOrElse (Json.Array []) "choices" d
+parseStringArray : String -> (Dict.Dict String Json.Value) -> [String]
+parseStringArray key d =
+  let v = Dict.getOrElse (Json.Array []) key d
   in case v of
     Json.Array a -> map parseString a
     _ -> []
@@ -72,8 +72,8 @@ toCard json =
   case json of
     Json.Object c ->
       Just {
-      question = parseCardImage c,
-      choices = parseCardChoices c,
+      question = parseUrl "question" c,
+      choices = parseStringArray "choices" c,
       start = second * parseFloat "timeStamp" c,
       time = floor <| second * parseFloat "time" c
       }
