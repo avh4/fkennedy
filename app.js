@@ -9,8 +9,7 @@ server.route({
   method: 'GET',
   path: '/api/v1/testCards',
   handler: function(request, reply){
-    var nextCard = roundHandler.startNewRound();
-    reply(nextCard);
+    reply(roundHandler.startNewRound());
   }
 });
 
