@@ -46,6 +46,9 @@ parseFloat v = case v of
 parseInt : Json.Value -> Maybe Int
 parseInt v = Maybe.map floor <| parseFloat v
 
+parseTimestamp : Json.Value -> Maybe Time
+parseTimestamp v = Maybe.map (\x -> second * x) <| parseFloat v
+
 toCard : Json.Value -> Maybe Card
 toCard json = 
   case json of
@@ -53,7 +56,7 @@ toCard json =
       unm {
       question = p "question" parseString c,
       choices = p "chocies" parseStringArray c,
-      start = Maybe.map (\x -> second * x) <| p "timeStamp" parseFloat c,
+      start =  p "timeStamp" parseTimestamp c,
       time = p "time" parseInt c
       }
     _ -> Nothing
