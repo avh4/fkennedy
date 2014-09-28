@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.provider.Settings.Secure;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -30,6 +32,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final String uniqueId = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
         final ImageLoader imageLoader = ImageLoader.getInstance();
@@ -44,7 +48,7 @@ public class MainActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ParameterMap params = httpClient.newParams()
                         .add("text", choices.get(position))
-                        .add("msisdn", Settings.Secure.ANDROID_ID);
+                        .add("msisdn", uniqueId);
                 httpClient.get("/api/v1/reportScore", params, new AsyncCallback() {
                     @Override
                     public void onComplete(HttpResponse httpResponse) {
