@@ -1,4 +1,6 @@
 var flashCards = require('./flashCardService.js');
+var storage = require('./storageService');
+
 var currentRound = {};
 var gameOptions = {
   timeBetweenRounds: 5000, // milliseconds
@@ -28,13 +30,9 @@ var reportScore = function(message){
 
 var endRound = function(){
   currentRound.status = 'inactive';
-  reportRound();
+  storage.saveRound(currentRound);
   currentRound.card = null;
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
-}
-
-var reportRound = function(){
-  console.log('reporting round!', currentRound.responses);
 }
 
 var getCurrentRound = function(){
