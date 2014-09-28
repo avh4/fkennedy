@@ -11,8 +11,7 @@ currentRound.timeRemaining = function(){
 
 var startNewRound = function(){
   currentRound.card = flashCards.getFlashCard();
-  currentRound.startTime = new Date().getTime()
-  return currentRound;
+  currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
 }
 
 var reportScore = function(message){
