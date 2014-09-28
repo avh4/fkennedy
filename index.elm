@@ -28,9 +28,10 @@ timerView round now =
 
 cardScene : (Int, Int) -> Round.Round -> Time -> Element
 cardScene (w,h) round now =
-  collage w h [
+  (leaderboard (300, h) [])
+  `beside`
+  collage (w-300) h [
     gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
-    moveX -300 <| toForm <| leaderboard (100, 100) [],
     toForm <| fittedImage 300 300 round.card.question,
     moveY -200 <| toForm <| plainText <| join "\n" round.card.choices,
     moveY 200 <| toForm <| timerView round now
