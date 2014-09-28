@@ -21,9 +21,9 @@ scene dim card now = case card of
 
 timerView : Round.Round -> Time -> Element
 timerView round now = 
-  let left = floor <| inSeconds (round.startTime - now + (second * toFloat round.card.time))
-  in if | left > round.card.time -> plainText <| "(" ++ (show round.card.time) ++ ")"
-        | left >= 0        -> plainText <| show left
+  let left = floor <| round.startTime - now + (millisecond * toFloat round.card.time)
+  in if | left > round.card.time -> plainText <| "(" ++ (show <| inSeconds <| toFloat round.card.time) ++ ")"
+        | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
         | otherwise        -> plainText "!!!"
 
 cardScene : (Int, Int) -> Round.Round -> Time -> Element

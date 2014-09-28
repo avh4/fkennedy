@@ -28,4 +28,4 @@ int : Json.Value -> Maybe Int
 int v = Maybe.map floor <| float v
 
 timestamp : Json.Value -> Maybe Time
-timestamp v = Maybe.map (\x -> second * x) <| float v
+timestamp v = Maybe.map (\x -> millisecond * x) <| float v
