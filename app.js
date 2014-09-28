@@ -9,7 +9,7 @@ server.route({
   method: 'GET',
   path: '/api/v1/testCards',
   handler: function(request, reply){
-    reply(roundHandler.startNewRound());
+    reply(roundHandler.getCurrentRound());
   }
 });
 
@@ -17,7 +17,7 @@ server.route({
   method: 'GET',
   path: '/api/v1/reportScore',
   handler: function(request, reply){
-    roundHandler.endRound(request.url.query);
+    roundHandler.reportScore(request.url.query);
     reply('200: OK');
   }
 });

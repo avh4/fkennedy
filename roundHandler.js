@@ -6,7 +6,7 @@ var gameOptions = {
 }
 
 currentRound.timeRemaining = function(){
-  return new Date().getTime() - (currentRound.startTime + currentRound.card.time)
+  return currentRound.startTime + currentRound.card.time - new Date().getTime()
 }
 
 var startNewRound = function(){
@@ -29,8 +29,14 @@ var reportRound = function(){
 
 }
 
-module.exports = {
-  startNewRound: startNewRound,
-  reportScore: reportScore,
-  endRound: endRound
+var getCurrentRound = function(){
+  return currentRound;
 }
+
+startNewRound();
+
+module.exports = {
+  reportScore: reportScore,
+  getCurrentRound: getCurrentRound
+}
+
