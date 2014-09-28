@@ -9,12 +9,18 @@ server = "http://localhost:4008"
 colorBg1 = hsl (degrees 200) 0.5 0.5
 colorBg2 = rgb 0 1 0
 
-main = scene <~ Window.dimensions ~ (toCard <~ json) ~ (every second)
+main = scene <~ Window.dimensions ~ (toCard <~ json) ~ (every (second * 0.5))
 
 scene : (Int,Int) -> Maybe Card -> Time -> Element
 scene dim card now = case card of
   Just card -> cardScene dim card now
   Nothing -> asText "No card"
+
+timerView : Card -> Time -> Element
+timerView card now = 
+  let left = floor <| inSeconds (card.start - now + (toFloat card.time))
+  in if left >= 0 then plainText <| show <| left
+    else plainText "!!!"
 
 cardScene : (Int, Int) -> Card -> Time -> Element
 cardScene (w,h) card now =
@@ -22,7 +28,7 @@ cardScene (w,h) card now =
     gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
     toForm <| fittedImage 300 300 card.question,
     moveY -200 <| toForm <| plainText <| join "\n" card.choices,
-    moveY 200 <| toForm <| plainText <| show <| floor <| inSeconds (card.start - now + (toFloat card.time))
+    moveY 200 <| toForm <| timerView card now
     ]
 
 type Card = {
@@ -51,6 +57,16 @@ parseCardChoices d =
     Json.Array a -> map parseString a
     _ -> []
 
+parseFloat : String -> (Dict.Dict String Json.Value) -> Float
+parseFloat key d =
+  let v = Dict.getOrElse (Json.Number 0) key d
+  in case v of
+    Json.Number f -> f
+    _ -> 0
+
+parseInt : String -> (Dict.Dict String Json.Value) -> Int
+parseInt key d = floor <| parseFloat key d
+
 toCard : Json.Value -> Maybe Card
 toCard json = 
   case json of
@@ -58,8 +74,8 @@ toCard json =
       Just {
       question = parseCardImage c,
       choices = parseCardChoices c,
-      start = 1411859740 * second,
-      time = 10
+      start = second * parseFloat "timeStamp" c,
+      time = floor <| second * parseFloat "time" c
       }
     _ -> Nothing
 
