@@ -18,9 +18,10 @@ scene dim card now = case card of
 
 timerView : Card -> Time -> Element
 timerView card now = 
-  let left = floor <| inSeconds (card.start - now + (toFloat card.time))
-  in if left >= 0 then plainText <| show <| left
-    else plainText "!!!"
+  let left = floor <| inSeconds (card.start - now + (second * toFloat card.time))
+  in if | left > card.time -> plainText <| "(" ++ (show card.time) ++ ")"
+        | left >= 0        -> plainText <| show left
+        | otherwise        -> plainText "!!!"
 
 cardScene : (Int, Int) -> Card -> Time -> Element
 cardScene (w,h) card now =
@@ -75,7 +76,7 @@ toCard json =
       question = parseUrl "question" c,
       choices = parseStringArray "choices" c,
       start = second * parseFloat "timeStamp" c,
-      time = floor <| second * parseFloat "time" c
+      time = parseInt "time" c
       }
     _ -> Nothing
 

@@ -11,7 +11,7 @@ server.route({
   path: '/api/v1/testCards',
   handler: function(request, reply){
     var nextCard = flashCards.getFlashCard();
-    nextCard.timeStamp = new Date().getTime() / 1000;
+    nextCard.timeStamp = new Date().getTime() / 1000 + 3;
     reply(nextCard);
   }
 });
