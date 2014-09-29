@@ -12173,7 +12173,7 @@ Elm.Main.make = function (_elm) {
       }();
    };
    var ws = A2($WebSocket.connect,
-   "ws://localhost:4008/api/v1/stream",
+   "ws://fkennedy.herokuapp.com/api/v1/stream",
    $Signal.constant(""));
    var wsd = A2($Signal._op["<~"],
    function (m) {
@@ -12217,7 +12217,7 @@ Elm.Main.make = function (_elm) {
       now,
       players);
    });
-   var server = "http://localhost:4008";
+   var server = "http://fkennedy.herokuapp.com";
    var players = A2($Signal._op["<~"],
    parsePlayers,
    A2($Signal._op["<~"],
