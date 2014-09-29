@@ -12,35 +12,6 @@ currentRound.timeRemaining = function(){
   return currentRound.startTime + currentRound.card.time - new Date().getTime()
 }
 
-var startNewRound = function(){
-  activateRound();
-  setTimeout(endRound, currentRound.timeRemaining());
-  socket.broadcast(currentRound, 'next');
-}
-
-var reportScore = function(message){
-  if(currentRound.status === 'inactive') return;
-  var userResponse = message.text.toLowerCase();
-  currentRound.responses[message.msisdn] = {
-    response: userResponse,
-    correctAnswer: userResponse === currentRound.card.answer.toLowerCase()
-  }
-}
-
-var endRound = function(){
-  socket.broadcast(roundSummary(), 'summary');
-  storage.saveRound(currentRound);
-  deactivateRound();
-  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
-}
-
-var roundSummary = function(){
-  return {
-    winners: pluck(currentRound.responses, 'correctAnswer'),
-    answer: currentRound.card.answer
-  };
-}
-
 var activateRound = function(){
   currentRound.card = flashCards.getFlashCard();
   currentRound.responses = {};
@@ -52,6 +23,35 @@ var deactivateRound = function(){
   currentRound.status = 'inactive';
   currentRound.card = null;
   currentRound.responses = {};
+}
+
+var startNewRound = function(){
+  activateRound();
+  setTimeout(endRound, currentRound.timeRemaining());
+  socket.broadcast(currentRound, 'next');
+}
+
+var roundSummary = function(){
+  return {
+    winners: pluck(currentRound.responses, 'correctAnswer'),
+    answer: currentRound.card.answer
+  };
+}
+
+var endRound = function(){
+  socket.broadcast(roundSummary(), 'summary');
+  storage.saveRound(currentRound);
+  deactivateRound();
+  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
+}
+
+var reportScore = function(message){
+  if(currentRound.status === 'inactive') return;
+  var userResponse = message.text.toLowerCase();
+  currentRound.responses[message.msisdn] = {
+    response: userResponse,
+    correctAnswer: userResponse === currentRound.card.answer.toLowerCase()
+  }
 }
 
 var getCurrentRound = function(){
