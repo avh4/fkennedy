@@ -15,16 +15,25 @@ client.on('error', function(err){
 var saveRound = function(round){
   for(user in round.responses){
     console.log(user);
-    client.sadd('users', user);
-    if(round.responses[user].correctAnswer) client.incr(user + ':score');
+    if(round.responses[user].correctAnswer) client.hincrby('users', user, "1");
   }
 }
 
-var getScores = function(){
-
+var getScores = function(reply){
+  var scores = {};
+  client.multi()
+        .hgetall('users')
+        .exec(function(err, replies){
+          if(err) return console.error(err);
+          for(var user in replies[0]){
+            scores[user] = replies[0][user];
+          }
+          reply(scores);
+        });
 }
 
 module.exports = {
   saveRound: saveRound,
   getScores: getScores
 }
+

@@ -15,12 +15,12 @@ var startNewRound = function(){
   currentRound.card = flashCards.getFlashCard();
   currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
   currentRound.status = 'active';
+  currentRound.responses = {};
   setTimeout(endRound, currentRound.timeRemaining());
 }
 
 var reportScore = function(message){
   if(currentRound.status === 'inactive') return;
-  if(!currentRound.card.responses) currentRound.responses = {};
   var userResponse = message.text.toLowerCase();
   currentRound.responses[message.msisdn] = {
     response: userResponse,
@@ -32,7 +32,7 @@ var endRound = function(){
   currentRound.status = 'inactive';
   storage.saveRound(currentRound);
   currentRound.card = null;
-  currentRound.responses = undefined;
+  currentRound.responses = {};
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 

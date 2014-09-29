@@ -1,5 +1,6 @@
 var Hapi = require('hapi');
 var roundHandler = require('./roundHandler.js');
+var storage = require('./storageService');
 
 var host = '0.0.0.0';
 var port = process.env.PORT || 4008;
@@ -26,7 +27,7 @@ server.route({
   method: 'GET',
   path: '/api/v1/scores',
   handler: function(request, reply){
-    reply(storageService.getScores());
+    storage.getScores(reply);
   }
 });
 
