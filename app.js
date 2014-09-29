@@ -1,6 +1,7 @@
 var Hapi = require('hapi');
 var roundHandler = require('./roundHandler.js');
 var storage = require('./storageService');
+var openSocket= require('./socketService.js');
 
 var host = '0.0.0.0';
 var port = process.env.PORT || 4008;
@@ -40,3 +41,5 @@ server.route({
 server.start();
 console.log('Listening on port', port);
 roundHandler.startGame();
+openSocket(server);
+
