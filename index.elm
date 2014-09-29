@@ -10,9 +10,11 @@ import WebSocket
 import Parse
 import Card
 import Round
+import Round (Round)
 import Leaderboard (leaderboard, Player)
 import CardPanel
 import Message
+import Message (Message)
 
 server = "http://localhost:4008"
 
@@ -31,7 +33,14 @@ ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
 
 wsd = (\m -> Debug.log "ws" <| Message.parse m) <~ ws
 
-round = (Round.parse <~ (parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))))
+r : Message -> Maybe Round
+r m = case m of
+  Message.Next r -> Just r
+  _ -> Nothing
+
+round : Signal (Maybe Round)
+round = r <~ wsd
+--round = (Round.parse <~ (parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))))
 
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
