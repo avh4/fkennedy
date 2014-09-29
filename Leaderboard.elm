@@ -24,7 +24,7 @@ mix a_ b_ x1 =
   in rgba r g b 1
 
 cmix : Float -> Color
-cmix x = mix color1 color2 x
+cmix x = mix color1 color2 (clamp 0 1 x)
 
 playerText : String -> Element
 playerText s = leftAligned <| Text.style { typeface = [ ]
