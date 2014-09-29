@@ -12,7 +12,6 @@ var initializeSocket = function(server, path){
 
   wss.on('connection', function(ws){
     openConnections.push(ws);
-    ws.send('Great success');
   });
 }
 
