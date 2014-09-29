@@ -31,11 +31,15 @@ var reportScore = function(message){
 }
 
 var endRound = function(){
-  currentRound.status = 'inactive';
   storage.saveRound(currentRound);
+  deactivateRound();
+  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
+}
+
+var deactivateRound = function(){
+  currentRound.status = 'inactive';
   currentRound.card = null;
   currentRound.responses = {};
-  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 
 var getCurrentRound = function(){
