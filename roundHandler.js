@@ -36,6 +36,13 @@ var endRound = function(){
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 
+var roundSummary = function(){
+  return {
+    winners: pluck(currentRound.responses, 'correctAnswer'),
+    answer: currentRound.card.answer
+  };
+}
+
 var deactivateRound = function(){
   currentRound.status = 'inactive';
   currentRound.card = null;
@@ -56,3 +63,10 @@ module.exports = {
   startGame: startGame
 }
 
+function pluck(collection, truthTest){
+  var truth = [];
+  for(var item in collection){
+    if(item[truthTest]) truth.push(item);
+  }
+  return truth;
+}
