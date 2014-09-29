@@ -43,6 +43,10 @@ var endRound = function(){
   storage.saveRound(currentRound);
   deactivateRound();
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
+  storage.getScores()
+         .then(function(data){
+           socket.broadcast(data, 'scores');
+         });
 }
 
 var reportScore = function(message){

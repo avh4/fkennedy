@@ -29,7 +29,10 @@ server.route({
   method: 'GET',
   path: '/api/v1/scores',
   handler: function(request, reply){
-    storage.getScores(reply);
+    storage.getScores()
+           .then(function(data){
+             reply(data);
+           });
   }
 });
 

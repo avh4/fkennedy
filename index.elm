@@ -16,6 +16,7 @@ import Leaderboard (leaderboard, Player)
 import CardPanel
 import Message
 import Message (Message)
+import Scores
 
 server = "http://fkennedy.herokuapp.com"
 
@@ -50,29 +51,17 @@ parseJson r = case r of
     Nothing -> Json.Null
   _ -> Json.Null
 
-y : (String, Int) -> Player
-y (name, score) = {name=name,score=score}
-
-x : Dict.Dict String Int -> [Player]
-x d = map y <| Dict.toList d
-
-pi : (String, Json.Value) -> Maybe (String, Int)
-pi (key, v) = case v of
-  Json.Number n -> Just (key, floor n)
-  _ -> Nothing
-
-toIntDict : Dict.Dict String Json.Value -> Dict.Dict String Int
-toIntDict d = Dict.fromList <| filterMap pi (Dict.toList d)
-
-parsePlayers : Maybe Json.Value -> Maybe [Player]
-parsePlayers v = case v of
-  Just (Json.Object d) -> Just (x <| toIntDict d)
-  _ -> Nothing
-
 pj : Http.Response String -> Maybe Json.Value
 pj r = case r of
   Http.Success s -> Json.fromString s
   _ -> Nothing
 
+s : Message -> Maybe [Player]
+s m = case m of
+  Message.Scores p -> Just p
+  _ -> Nothing
+
 players : Signal (Maybe [Player])
-players = parsePlayers <~ (pj <~ Http.sendGet (constant (server ++ "/api/v1/scores")))
+players = keepIf Maybe.isJust Nothing (s <~ wsd)
+--players = Scores.parse <~ (pj <~ Http.sendGet (constant (server ++ "/api/v1/scores")))
+

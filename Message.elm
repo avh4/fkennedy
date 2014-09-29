@@ -4,6 +4,9 @@ import Json
 import Dict
 import Round (Round)
 import Round
+import Leaderboard (Player)
+import Scores
+import Debug
 
 type Summary = {
   winners:[String],
@@ -12,7 +15,8 @@ type Summary = {
 
 data Message =
   Next Round |
-  Summary_ Summary |
+  NewSummary Summary |
+  Scores [Player] |
   Unrecognized String
 
 parse : String -> Message
@@ -28,6 +32,9 @@ parseDict d = case Dict.get "type" d of
       Just r -> Next r
       Nothing -> Unrecognized "Round failed to parse"
     Nothing -> Unrecognized "No message"
-  Just (Json.String "summary") -> Summary_ {winners=[],answer="XXX"}
+  Just (Json.String "summary") -> NewSummary {winners=[],answer="XXX"}
+  Just (Json.String "scores") -> case Scores.parse <| Dict.get "message" d of
+    Just s -> Scores s
+    Nothing -> Unrecognized "Scores failed to parse"
   Just _ -> Unrecognized "Unknown type"
   _ -> Unrecognized "No type"
