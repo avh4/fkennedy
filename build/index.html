@@ -12081,140 +12081,457 @@ Elm.Main.make = function (_elm) {
    _E = _N.Error.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
-   $Color = Elm.Color.make(_elm),
-   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $CardPanel = Elm.CardPanel.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Http = Elm.Http.make(_elm),
    $Json = Elm.Json.make(_elm),
    $Leaderboard = Elm.Leaderboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
+   $Message = Elm.Message.make(_elm),
    $Round = Elm.Round.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $String = Elm.String.make(_elm),
-   $Text = Elm.Text.make(_elm),
    $Time = Elm.Time.make(_elm),
+   $WebSocket = Elm.WebSocket.make(_elm),
    $Window = Elm.Window.make(_elm);
+   var pj = function (r) {
+      return function () {
+         switch (r.ctor)
+         {case "Success":
+            return $Json.fromString(r._0);}
+         return $Maybe.Nothing;
+      }();
+   };
+   var pi = function (_v2) {
+      return function () {
+         switch (_v2.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (_v2._1.ctor)
+                 {case "Number":
+                    return $Maybe.Just({ctor: "_Tuple2"
+                                       ,_0: _v2._0
+                                       ,_1: $Basics.floor(_v2._1._0)});}
+                 return $Maybe.Nothing;
+              }();}
+         _E.Case($moduleName,
+         "between lines 60 and 62");
+      }();
+   };
+   var toIntDict = function (d) {
+      return $Dict.fromList(A2($List.filterMap,
+      pi,
+      $Dict.toList(d)));
+   };
+   var y = function (_v8) {
+      return function () {
+         switch (_v8.ctor)
+         {case "_Tuple2": return {_: {}
+                                 ,name: _v8._0
+                                 ,score: _v8._1};}
+         _E.Case($moduleName,
+         "on line 54, column 20 to 41");
+      }();
+   };
+   var x = function (d) {
+      return $List.map(y)($Dict.toList(d));
+   };
+   var parsePlayers = function (v) {
+      return function () {
+         switch (v.ctor)
+         {case "Just": switch (v._0.ctor)
+              {case "Object":
+                 return $Maybe.Just(x(toIntDict(v._0._0)));}
+              break;}
+         return $Maybe.Nothing;
+      }();
+   };
    var parseJson = function (r) {
       return function () {
          switch (r.ctor)
          {case "Success":
             return function () {
-                 var _v2 = $Json.fromString(r._0);
-                 switch (_v2.ctor)
-                 {case "Just": return _v2._0;
+                 var _v17 = $Json.fromString(r._0);
+                 switch (_v17.ctor)
+                 {case "Just": return _v17._0;
                     case "Nothing":
                     return $Json.Null;}
                  _E.Case($moduleName,
-                 "between lines 42 and 45");
+                 "between lines 48 and 51");
               }();}
          return $Json.Null;
       }();
+   };
+   var r = function (m) {
+      return function () {
+         switch (m.ctor)
+         {case "Next":
+            return $Maybe.Just(m._0);}
+         return $Maybe.Nothing;
+      }();
+   };
+   var ws = A2($WebSocket.connect,
+   "ws://localhost:4008/api/v1/stream",
+   $Signal.constant(""));
+   var wsd = A2($Signal._op["<~"],
+   function (m) {
+      return $Debug.log("ws")($Message.parse(m));
+   },
+   ws);
+   var round = A3($Signal.keepIf,
+   $Maybe.isJust,
+   $Maybe.Nothing,
+   A2($Signal._op["<~"],r,wsd));
+   var cardScene = F4(function (_v21,
+   round,
+   now,
+   players) {
+      return function () {
+         switch (_v21.ctor)
+         {case "_Tuple2":
+            return A2($Graphics$Element.beside,
+              A2($Leaderboard.leaderboard,
+              {ctor: "_Tuple2"
+              ,_0: 300
+              ,_1: _v21._1},
+              players),
+              A3($CardPanel.view,
+              {ctor: "_Tuple2"
+              ,_0: _v21._0 - 300
+              ,_1: _v21._1},
+              round,
+              now));}
+         _E.Case($moduleName,
+         "between lines 29 and 31");
+      }();
+   });
+   var scene = F4(function (dim,
+   card,
+   now,
+   players) {
+      return A4(cardScene,
+      dim,
+      card,
+      now,
+      players);
+   });
+   var server = "http://localhost:4008";
+   var players = A2($Signal._op["<~"],
+   parsePlayers,
+   A2($Signal._op["<~"],
+   pj,
+   $Http.sendGet($Signal.constant(_L.append(server,
+   "/api/v1/scores")))));
+   var main = A2($Signal._op["~"],
+   A2($Signal._op["~"],
+   A2($Signal._op["~"],
+   A2($Signal._op["<~"],
+   scene,
+   $Window.dimensions),
+   round),
+   $Time.every($Time.second * 5.0e-2)),
+   players);
+   _elm.Main.values = {_op: _op
+                      ,server: server
+                      ,main: main
+                      ,scene: scene
+                      ,cardScene: cardScene
+                      ,ws: ws
+                      ,wsd: wsd
+                      ,r: r
+                      ,round: round
+                      ,parseJson: parseJson
+                      ,y: y
+                      ,x: x
+                      ,pi: pi
+                      ,toIntDict: toIntDict
+                      ,parsePlayers: parsePlayers
+                      ,pj: pj
+                      ,players: players};
+   return _elm.Main.values;
+};Elm.Message = Elm.Message || {};
+Elm.Message.make = function (_elm) {
+   "use strict";
+   _elm.Message = _elm.Message || {};
+   if (_elm.Message.values)
+   return _elm.Message.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Message",
+   $Dict = Elm.Dict.make(_elm),
+   $Json = Elm.Json.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Round = Elm.Round.make(_elm);
+   var Unrecognized = function (a) {
+      return {ctor: "Unrecognized"
+             ,_0: a};
+   };
+   var Summary_ = function (a) {
+      return {ctor: "Summary_"
+             ,_0: a};
+   };
+   var Next = function (a) {
+      return {ctor: "Next",_0: a};
+   };
+   var parseDict = function (d) {
+      return function () {
+         var _v0 = A2($Dict.get,
+         "type",
+         d);
+         switch (_v0.ctor)
+         {case "Just":
+            switch (_v0._0.ctor)
+              {case "String":
+                 switch (_v0._0._0)
+                   {case "next":
+                      return function () {
+                           var _v3 = A2($Dict.get,
+                           "message",
+                           d);
+                           switch (_v3.ctor)
+                           {case "Just":
+                              return function () {
+                                   var _v5 = $Round.parse(_v3._0);
+                                   switch (_v5.ctor)
+                                   {case "Just":
+                                      return Next(_v5._0);
+                                      case "Nothing":
+                                      return Unrecognized("Round failed to parse");}
+                                   _E.Case($moduleName,
+                                   "between lines 27 and 30");
+                                }();
+                              case "Nothing":
+                              return Unrecognized("No message");}
+                           _E.Case($moduleName,
+                           "between lines 26 and 31");
+                        }();
+                      case "summary":
+                      return Summary_({_: {}
+                                      ,answer: "XXX"
+                                      ,winners: _L.fromArray([])});}
+                   break;}
+              return Unrecognized("Unknown type");}
+         return Unrecognized("No type");
+      }();
+   };
+   var parse = function (s) {
+      return function () {
+         var _v7 = $Json.fromString(s);
+         switch (_v7.ctor)
+         {case "Just":
+            switch (_v7._0.ctor)
+              {case "Object":
+                 return parseDict(_v7._0._0);}
+              return Unrecognized("Not an object");
+            case "Nothing":
+            return Unrecognized("JSON didn\'t parse");}
+         _E.Case($moduleName,
+         "between lines 19 and 22");
+      }();
+   };
+   var Summary = F2(function (a,
+   b) {
+      return {_: {}
+             ,answer: b
+             ,winners: a};
+   });
+   _elm.Message.values = {_op: _op
+                         ,Summary: Summary
+                         ,Next: Next
+                         ,Summary_: Summary_
+                         ,Unrecognized: Unrecognized
+                         ,parse: parse
+                         ,parseDict: parseDict};
+   return _elm.Message.values;
+};Elm.CardPanel = Elm.CardPanel || {};
+Elm.CardPanel.make = function (_elm) {
+   "use strict";
+   _elm.CardPanel = _elm.CardPanel || {};
+   if (_elm.CardPanel.values)
+   return _elm.CardPanel.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "CardPanel",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Round = Elm.Round.make(_elm),
+   $String = Elm.String.make(_elm),
+   $Text = Elm.Text.make(_elm),
+   $Time = Elm.Time.make(_elm);
+   var fmtTimer = function (t) {
+      return _L.append("0:",
+      A2($String.padLeft,
+      2,
+      _U.chr("0"))($String.show($Basics.floor($Time.inSeconds($Basics.toFloat(t))))));
+   };
+   var titleText = function (s) {
+      return $Text.leftAligned($Text.style({_: {}
+                                           ,bold: false
+                                           ,color: $Color.black
+                                           ,height: $Maybe.Just(32)
+                                           ,italic: false
+                                           ,line: $Maybe.Nothing
+                                           ,typeface: _L.fromArray([])})($Text.toText(s)));
+   };
+   var choiceText = function (s) {
+      return $Text.leftAligned($Text.style({_: {}
+                                           ,bold: true
+                                           ,color: $Color.black
+                                           ,height: $Maybe.Just(32)
+                                           ,italic: false
+                                           ,line: $Maybe.Nothing
+                                           ,typeface: _L.fromArray([])})($Text.toText(s)));
+   };
+   var choice = function (s) {
+      return A3($Graphics$Element.container,
+      160,
+      60,
+      $Graphics$Element.middle)($Graphics$Element.color(A3($Color.hsl,
+      $Basics.degrees(100),
+      0.2,
+      0.9))(A3($Graphics$Element.container,
+      140,
+      40,
+      $Graphics$Element.middle)(choiceText(s))));
+   };
+   var timerText = function (s) {
+      return $Text.leftAligned($Text.style({_: {}
+                                           ,bold: true
+                                           ,color: $Color.black
+                                           ,height: $Maybe.Just(64)
+                                           ,italic: false
+                                           ,line: $Maybe.Nothing
+                                           ,typeface: _L.fromArray([])})($Text.toText(s)));
    };
    var timerView = F2(function (round,
    now) {
       return function () {
          var left = $Basics.floor(round.startTime - now + $Time.millisecond * $Basics.toFloat(round.card.time));
          return _U.cmp(left,
-         round.card.time) > 0 ? $Text.plainText(_L.append("(",
-         _L.append($String.show($Time.inSeconds($Basics.toFloat(round.card.time))),
+         round.card.time) > 0 ? timerText(_L.append("(",
+         _L.append(fmtTimer(round.card.time),
          ")"))) : _U.cmp(left,
-         0) > -1 ? $Text.plainText($String.show($Basics.floor($Time.inSeconds($Basics.toFloat(left))))) : $Text.plainText("!!!");
+         0) > -1 ? timerText(fmtTimer(left)) : timerText("Time\'s up");
       }();
    });
-   var colorBg2 = A3($Color.rgb,
-   0,
-   1,
-   0);
-   var colorBg1 = A3($Color.hsl,
-   $Basics.degrees(200),
-   0.5,
-   0.5);
-   var cardScene = F3(function (_v4,
+   var colorBg2 = function (t) {
+      return A3($Color.hsl,
+      $Basics.degrees(200) + t * 2.0e-5,
+      0.4,
+      0.8);
+   };
+   var colorBg1 = function (t) {
+      return A3($Color.hsl,
+      $Basics.degrees(200) + t * 3.0e-4,
+      0.4,
+      0.5);
+   };
+   var background = F2(function (_v0,
+   now) {
+      return function () {
+         switch (_v0.ctor)
+         {case "_Tuple2":
+            return A3($Graphics$Collage.collage,
+              _v0._0,
+              _v0._1,
+              _L.fromArray([A2($Graphics$Collage.gradient,
+              A3($Color.linear,
+              {ctor: "_Tuple2"
+              ,_0: $Basics.toFloat(_v0._0) * $Basics.sin(now * 1.0e-4)
+              ,_1: 0},
+              {ctor: "_Tuple2"
+              ,_0: $Basics.toFloat(_v0._0) * $Basics.sin(now * 7.0e-5)
+              ,_1: $Basics.toFloat(_v0._1)},
+              _L.fromArray([{ctor: "_Tuple2"
+                            ,_0: 0
+                            ,_1: colorBg1(now)}
+                           ,{ctor: "_Tuple2"
+                            ,_0: 1
+                            ,_1: colorBg2(now)}])),
+              A2($Graphics$Collage.rect,
+              $Basics.toFloat(_v0._0),
+              $Basics.toFloat(_v0._1)))]));}
+         _E.Case($moduleName,
+         "between lines 11 and 16");
+      }();
+   });
+   var view = F3(function (_v4,
    round,
    now) {
       return function () {
          switch (_v4.ctor)
          {case "_Tuple2":
-            return A2($Graphics$Element.beside,
-              A2($Leaderboard.leaderboard,
-              {ctor: "_Tuple2"
-              ,_0: 300
-              ,_1: _v4._1},
-              _L.fromArray([])),
-              A3($Graphics$Collage.collage,
-              _v4._0 - 300,
-              _v4._1,
-              _L.fromArray([A2($Graphics$Collage.gradient,
-                           A3($Color.linear,
-                           {ctor: "_Tuple2",_0: 0,_1: 0},
-                           {ctor: "_Tuple2"
-                           ,_0: -100
-                           ,_1: $Basics.toFloat(_v4._1)},
-                           _L.fromArray([{ctor: "_Tuple2"
-                                         ,_0: 0
-                                         ,_1: colorBg1}
-                                        ,{ctor: "_Tuple2"
-                                         ,_0: 1
-                                         ,_1: colorBg2}])),
-                           A2($Graphics$Collage.rect,
-                           $Basics.toFloat(_v4._0),
-                           $Basics.toFloat(_v4._1)))
-                           ,$Graphics$Collage.toForm(A3($Graphics$Element.fittedImage,
-                           300,
-                           300,
-                           round.card.question))
-                           ,$Graphics$Collage.moveY(-200)($Graphics$Collage.toForm($Text.plainText(A2($List.join,
-                           "\n",
-                           round.card.choices))))
-                           ,$Graphics$Collage.moveY(200)($Graphics$Collage.toForm(A2(timerView,
-                           round,
-                           now)))])));}
+            return $Graphics$Element.layers(_L.fromArray([A2(background,
+                                                         {ctor: "_Tuple2"
+                                                         ,_0: _v4._0
+                                                         ,_1: _v4._1},
+                                                         now)
+                                                         ,function () {
+                                                            switch (round.ctor)
+                                                            {case "Just":
+                                                               return A2($Graphics$Element.flow,
+                                                                 $Graphics$Element.down,
+                                                                 _L.fromArray([A3($Graphics$Element.container,
+                                                                              _v4._0,
+                                                                              70,
+                                                                              $Graphics$Element.midBottom)(titleText("Name that cat!"))
+                                                                              ,A3($Graphics$Element.container,
+                                                                              _v4._0,
+                                                                              120,
+                                                                              $Graphics$Element.middle)(A2(timerView,
+                                                                              round._0,
+                                                                              now))
+                                                                              ,A3($Graphics$Element.container,
+                                                                              _v4._0,
+                                                                              300,
+                                                                              $Graphics$Element.middle)(A3($Graphics$Element.fittedImage,
+                                                                              300,
+                                                                              300,
+                                                                              round._0.card.question))
+                                                                              ,A3($Graphics$Element.container,
+                                                                              _v4._0,
+                                                                              200,
+                                                                              $Graphics$Element.middle)($Graphics$Element.flow($Graphics$Element.right)(A2($List.map,
+                                                                              choice,
+                                                                              round._0.card.choices)))]));
+                                                               case "Nothing":
+                                                               return A3($Graphics$Element.container,
+                                                                 _v4._0,
+                                                                 300,
+                                                                 $Graphics$Element.middle)(timerText("Waiting for next round..."));}
+                                                            _E.Case($moduleName,
+                                                            "between lines 60 and 69");
+                                                         }()]));}
          _E.Case($moduleName,
-         "between lines 31 and 38");
+         "between lines 58 and 69");
       }();
    });
-   var scene = F3(function (dim,
-   card,
-   now) {
-      return function () {
-         switch (card.ctor)
-         {case "Just":
-            return A3(cardScene,
-              dim,
-              card._0,
-              now);
-            case "Nothing":
-            return $Text.asText("No card");}
-         _E.Case($moduleName,
-         "between lines 18 and 20");
-      }();
-   });
-   var server = "http://localhost:4008";
-   var json = A2($Signal._op["<~"],
-   parseJson,
-   $Http.sendGet($Signal.constant(_L.append(server,
-   "/api/v1/testCards"))));
-   var main = A2($Signal._op["~"],
-   A2($Signal._op["~"],
-   A2($Signal._op["<~"],
-   scene,
-   $Window.dimensions),
-   A2($Signal._op["<~"],
-   $Round.parse,
-   json)),
-   $Time.every($Time.second * 0.5));
-   _elm.Main.values = {_op: _op
-                      ,server: server
-                      ,colorBg1: colorBg1
-                      ,colorBg2: colorBg2
-                      ,main: main
-                      ,scene: scene
-                      ,timerView: timerView
-                      ,cardScene: cardScene
-                      ,parseJson: parseJson
-                      ,json: json};
-   return _elm.Main.values;
+   _elm.CardPanel.values = {_op: _op
+                           ,colorBg1: colorBg1
+                           ,colorBg2: colorBg2
+                           ,background: background
+                           ,timerText: timerText
+                           ,choiceText: choiceText
+                           ,titleText: titleText
+                           ,fmtTimer: fmtTimer
+                           ,timerView: timerView
+                           ,choice: choice
+                           ,view: view};
+   return _elm.CardPanel.values;
 };Elm.Round = Elm.Round || {};
 Elm.Round.make = function (_elm) {
    "use strict";
@@ -12608,7 +12925,28 @@ Elm.Leaderboard.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $String = Elm.String.make(_elm),
    $Text = Elm.Text.make(_elm);
+   var scoreText = function (s) {
+      return $Text.leftAligned($Text.style({_: {}
+                                           ,bold: true
+                                           ,color: A3($Color.hsl,0,0,0.0)
+                                           ,height: $Maybe.Just(24)
+                                           ,italic: false
+                                           ,line: $Maybe.Nothing
+                                           ,typeface: _L.fromArray([])})($Text.toText(s)));
+   };
+   var playerText = function (s) {
+      return $Text.leftAligned($Text.style({_: {}
+                                           ,bold: false
+                                           ,color: A3($Color.hsl,0,0,0.3)
+                                           ,height: $Maybe.Just(24)
+                                           ,italic: false
+                                           ,line: $Maybe.Nothing
+                                           ,typeface: _L.fromArray([])})($Text.toText(s)));
+   };
    var mix = F3(function (a_,
    b_,
    x1) {
@@ -12637,37 +12975,63 @@ Elm.Leaderboard.make = function (_elm) {
       return A3(mix,
       color1,
       color2,
-      x);
+      A3($Basics.clamp,0,1,x));
    };
-   var leaderboard = F2(function (_v0,
+   var showPlayer = F2(function (w,
    p) {
+      return $Graphics$Element.color(cmix($Basics.toFloat(p.score) / 100))($Graphics$Element.layers(_L.fromArray([A3($Graphics$Element.container,
+                                                                                                                 w,
+                                                                                                                 50,
+                                                                                                                 $Graphics$Element.midLeft)(A2($Graphics$Element.beside,
+                                                                                                                 A2($Graphics$Element.spacer,
+                                                                                                                 15,
+                                                                                                                 10),
+                                                                                                                 playerText(p.name)))
+                                                                                                                 ,A3($Graphics$Element.container,
+                                                                                                                 w,
+                                                                                                                 50,
+                                                                                                                 $Graphics$Element.midRight)(A2($Graphics$Element.beside,
+                                                                                                                 scoreText($String.show(p.score)),
+                                                                                                                 A2($Graphics$Element.spacer,
+                                                                                                                 30,
+                                                                                                                 10)))])));
+   });
+   var leaderboard = F2(function (_v0,
+   mps) {
       return function () {
          switch (_v0.ctor)
          {case "_Tuple2":
-            return $Graphics$Element.color(color2)(A3($Graphics$Element.container,
-              _v0._0,
-              _v0._1,
-              $Graphics$Element.topLeft)(A2($Graphics$Element.flow,
-              $Graphics$Element.down,
-              _L.fromArray([$Text.plainText("Leaderboard")
-                           ,$Graphics$Element.color(cmix(0.8))(A3($Graphics$Element.container,
-                           _v0._0,
-                           50,
-                           $Graphics$Element.middle)($Text.plainText("Aaron: 80%")))
-                           ,$Graphics$Element.color(cmix(0.72))(A3($Graphics$Element.container,
-                           _v0._0,
-                           50,
-                           $Graphics$Element.middle)($Text.plainText("Drew: 72%")))
-                           ,$Graphics$Element.color(cmix(0.63))(A3($Graphics$Element.container,
-                           _v0._0,
-                           50,
-                           $Graphics$Element.middle)($Text.plainText("Babs: 63%")))
-                           ,$Graphics$Element.color(cmix(0.18))(A3($Graphics$Element.container,
-                           _v0._0,
-                           50,
-                           $Graphics$Element.middle)($Text.plainText("Rudolpho: 18%")))]))));}
+            return function () {
+                 switch (mps.ctor)
+                 {case "Just":
+                    return $Graphics$Element.color(color2)(A3($Graphics$Element.container,
+                      _v0._0,
+                      _v0._1,
+                      $Graphics$Element.topLeft)($Graphics$Element.flow($Graphics$Element.down)(_L.append(_L.fromArray([A3($Graphics$Element.container,
+                      _v0._0,
+                      50,
+                      $Graphics$Element.middle)(playerText("Leaderboard"))]),
+                      A2($List.map,
+                      showPlayer(_v0._0),
+                      A2($List.sortBy,
+                      function (p) {
+                         return 0 - p.score;
+                      },
+                      mps._0))))));
+                    case "Nothing":
+                    return $Graphics$Element.color(color2)(A3($Graphics$Element.container,
+                      _v0._0,
+                      _v0._1,
+                      $Graphics$Element.topLeft)($Graphics$Element.flow($Graphics$Element.down)(_L.fromArray([A3($Graphics$Element.container,
+                                                                                                             _v0._0,
+                                                                                                             50,
+                                                                                                             $Graphics$Element.middle)(playerText("Leaderboard"))
+                                                                                                             ,$Text.plainText("...")]))));}
+                 _E.Case($moduleName,
+                 "between lines 55 and 62");
+              }();}
          _E.Case($moduleName,
-         "between lines 28 and 34");
+         "between lines 55 and 62");
       }();
    });
    var Player = F2(function (a,b) {
@@ -12682,6 +13046,9 @@ Elm.Leaderboard.make = function (_elm) {
                              ,avg: avg
                              ,mix: mix
                              ,cmix: cmix
+                             ,playerText: playerText
+                             ,scoreText: scoreText
+                             ,showPlayer: showPlayer
                              ,leaderboard: leaderboard};
    return _elm.Leaderboard.values;
 };Elm.Parse = Elm.Parse || {};
@@ -12703,6 +13070,15 @@ Elm.Parse.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Time = Elm.Time.make(_elm);
+   var object = F2(function (fn,
+   v) {
+      return function () {
+         switch (v.ctor)
+         {case "Object":
+            return $Maybe.Just(fn(v._0));}
+         return $Maybe.Nothing;
+      }();
+   });
    var $float = function (v) {
       return function () {
          switch (v.ctor)
@@ -12739,11 +13115,11 @@ Elm.Parse.make = function (_elm) {
    };
    var p = F3(function (key,fn,d) {
       return function () {
-         var _v6 = A2($Dict.get,
+         var _v8 = A2($Dict.get,
          key,
          d);
-         switch (_v6.ctor)
-         {case "Just": return fn(_v6._0);
+         switch (_v8.ctor)
+         {case "Just": return fn(_v8._0);
             case "Nothing":
             return $Maybe.Nothing;}
          _E.Case($moduleName,
@@ -12756,6 +13132,7 @@ Elm.Parse.make = function (_elm) {
                        ,stringArray: stringArray
                        ,$float: $float
                        ,$int: $int
-                       ,timestamp: timestamp};
+                       ,timestamp: timestamp
+                       ,object: object};
    return _elm.Parse.values;
 };</script></head><body><script type="text/javascript">Elm.fullscreen(Elm.Main)</script><noscript></noscript></body></html>
