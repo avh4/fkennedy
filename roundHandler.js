@@ -31,6 +31,7 @@ var reportScore = function(message){
 }
 
 var endRound = function(){
+  socket.broadcast(roundSummary(), 'summary');
   storage.saveRound(currentRound);
   deactivateRound();
   setTimeout(startNewRound, gameOptions.timeBetweenRounds);
