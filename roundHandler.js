@@ -51,6 +51,10 @@ var endRound = function(){
 
 var reportScore = function(message){
   if(currentRound.status === 'inactive') return;
+  if(message.Text){
+    message.text = message.Text;
+    message.msisdn = message.From;
+  }
   var userResponse = message.text.toLowerCase();
   currentRound.responses[message.msisdn] = {
     response: userResponse,
