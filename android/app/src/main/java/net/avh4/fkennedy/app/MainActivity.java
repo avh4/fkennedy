@@ -50,7 +50,8 @@ public class MainActivity extends ActionBarActivity {
         final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
 
         ListView list = (ListView) findViewById(R.id.list);
-        list.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices));
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices);
+        list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -83,6 +84,7 @@ public class MainActivity extends ActionBarActivity {
                         choices.add(choices_.getString(i));
                     }
                     imageLoader.displayImage(card.getString("question"), image);
+                    adapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
