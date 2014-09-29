@@ -5,12 +5,14 @@ import Json
 import Http
 import Dict
 import Debug
+import WebSocket
 
 import Parse
 import Card
 import Round
 import Leaderboard (leaderboard, Player)
 import CardPanel
+import Message
 
 server = "http://localhost:4008"
 
@@ -24,6 +26,10 @@ cardScene (w,h) round now players =
   leaderboard (300, h) players
   `beside`
   CardPanel.view (w-300,h) round now
+
+ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
+
+wsd = (\m -> Debug.log "ws" <| Message.parse m) <~ ws
 
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
