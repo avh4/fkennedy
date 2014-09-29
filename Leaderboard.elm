@@ -33,5 +33,5 @@ leaderboard (w,h) mps = case mps of
   Just ps ->
     color color2 <| container w h topLeft <| flow down <| [
     plainText "Leaderboard"]
-    ++ map (showPlayer w) ps
+    ++ map (showPlayer w) (sortBy (\p -> -p.score) ps)
   Nothing -> container w h topLeft <| asText "No players found"
