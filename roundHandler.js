@@ -13,10 +13,7 @@ currentRound.timeRemaining = function(){
 }
 
 var startNewRound = function(){
-  currentRound.card = flashCards.getFlashCard();
-  currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
-  currentRound.status = 'active';
-  currentRound.responses = {};
+  activateRound();
   setTimeout(endRound, currentRound.timeRemaining());
   socket.broadcast(currentRound, 'next');
 }
@@ -42,6 +39,13 @@ var roundSummary = function(){
     winners: pluck(currentRound.responses, 'correctAnswer'),
     answer: currentRound.card.answer
   };
+}
+
+var activateRound = function(){
+  currentRound.card = flashCards.getFlashCard();
+  currentRound.responses = {};
+  currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
+  currentRound.status = 'active';
 }
 
 var deactivateRound = function(){
