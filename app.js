@@ -27,6 +27,15 @@ server.route({
 
 server.route({
   method: 'GET',
+  path: '/api/v1/reportAnswer',
+  handler: function(request, reply){
+    roundHandler.reportScore(request.url.query);
+    reply('200: OK');
+  }
+});
+
+server.route({
+  method: 'GET',
   path: '/api/v1/scores',
   handler: function(request, reply){
     storage.getScores()
@@ -38,7 +47,7 @@ server.route({
 
 server.route({
   method: 'GET',
-  path: '/',
+  path: '/index.html',
   handler: { file: 'build/index.html' }
 });
 
