@@ -24,11 +24,11 @@ mix a_ b_ x1 =
 cmix : Float -> Color
 cmix x = mix color1 color2 x
 
+showPlayer : Int -> Player -> Element
+showPlayer w p = color (cmix <| toFloat p.score / 100) <| container w 50 middle
+  <| plainText <| p.name ++ ": " ++ (show p.score)
+
 leaderboard : (Int,Int) -> [Player] -> Element
-leaderboard (w,h) p = color color2 <| container w h topLeft <| flow down [
-  plainText "Leaderboard",
-  color (cmix 0.80) <| container w 50 middle <| plainText <| "Aaron: 80%",
-  color (cmix 0.72) <| container w 50 middle <| plainText <| "Drew: 72%",
-  color (cmix 0.63) <| container w 50 middle <| plainText <| "Babs: 63%",
-  color (cmix 0.18) <| container w 50 middle <| plainText <| "Rudolpho: 18%"
-  ]
+leaderboard (w,h) ps = color color2 <| container w h topLeft <| flow down <| [
+  plainText "Leaderboard"]
+  ++ map (showPlayer w) ps

@@ -6,17 +6,17 @@ import Http
 
 import Card
 import Round
-import Leaderboard (leaderboard)
+import Leaderboard (leaderboard, Player)
 
 server = "http://localhost:4008"
 colorBg1 = hsl (degrees 200) 0.5 0.5
 colorBg2 = rgb 0 1 0
 
-main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5))
+main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5)) ~ players
 
-scene : (Int,Int) -> Maybe Round.Round -> Time -> Element
-scene dim card now = case card of
-  Just card -> cardScene dim card now
+scene : (Int,Int) -> Maybe Round.Round -> Time -> [Player] -> Element
+scene dim card now players = case card of
+  Just card -> cardScene dim card now players
   Nothing -> asText "No card"
 
 timerView : Round.Round -> Time -> Element
@@ -26,9 +26,9 @@ timerView round now =
         | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
         | otherwise        -> plainText "!!!"
 
-cardScene : (Int, Int) -> Round.Round -> Time -> Element
-cardScene (w,h) round now =
-  (leaderboard (300, h) [])
+cardScene : (Int, Int) -> Round.Round -> Time -> [Player] -> Element
+cardScene (w,h) round now players =
+  (leaderboard (300, h) players)
   `beside`
   collage (w-300) h [
     gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
@@ -46,3 +46,6 @@ parseJson r = case r of
 
 json : Signal Json.Value
 json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
+
+players : Signal [Player]
+players = constant <| [{name="Aaron",score=80}, {name="Drew",score=72}]
