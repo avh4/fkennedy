@@ -3,7 +3,7 @@ var url = require('url');
 
 if(process.env.REDISTOGO_URL){
   var redisURL = url.parse(process.env.REDISTOGO_URL);
-  var client = redis.createClient(redisURL.port, rediURL.hostname);
+  var client = redis.createClient(redisURL.port, redisURL.hostname);
 } else {
   var client = redis.createClient();
 }

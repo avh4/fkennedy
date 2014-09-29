@@ -3,20 +3,23 @@ import Html (..)
 import Window
 import Json
 import Http
+import Dict
+import Debug
 
+import Parse
 import Card
 import Round
-import Leaderboard (leaderboard)
+import Leaderboard (leaderboard, Player)
 
 server = "http://localhost:4008"
 colorBg1 = hsl (degrees 200) 0.5 0.5
 colorBg2 = rgb 0 1 0
 
-main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5))
+main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5)) ~ players
 
-scene : (Int,Int) -> Maybe Round.Round -> Time -> Element
-scene dim card now = case card of
-  Just card -> cardScene dim card now
+scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
+scene dim card now players = case card of
+  Just card -> cardScene dim card now players
   Nothing -> asText "No card"
 
 timerView : Round.Round -> Time -> Element
@@ -26,9 +29,9 @@ timerView round now =
         | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
         | otherwise        -> plainText "!!!"
 
-cardScene : (Int, Int) -> Round.Round -> Time -> Element
-cardScene (w,h) round now =
-  (leaderboard (300, h) [])
+cardScene : (Int, Int) -> Round.Round -> Time -> Maybe [Player] -> Element
+cardScene (w,h) round now players =
+  (leaderboard (300, h) players)
   `beside`
   collage (w-300) h [
     gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
@@ -46,3 +49,25 @@ parseJson r = case r of
 
 json : Signal Json.Value
 json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
+
+y : (String, Int) -> Player
+y (name, score) = {name=name,score=score}
+
+x : Dict.Dict String Int -> [Player]
+x d = map y <| Dict.toList d
+
+pi : (String, Json.Value) -> Maybe (String, Int)
+pi (key, v) = case v of
+  Json.Number n -> Just (key, floor n)
+  _ -> Nothing
+
+toIntDict : Dict.Dict String Json.Value -> Dict.Dict String Int
+toIntDict d = Dict.fromList <| filterMap pi (Dict.toList d)
+
+parsePlayers : Maybe Json.Value -> Maybe [Player]
+parsePlayers v = case v of
+  Just (Json.Object d) -> Just (x <| toIntDict d)
+  _ -> Nothing
+
+players : Signal (Maybe [Player])
+players = constant <| parsePlayers <| Json.fromString "{\"Aaron\":80,\"Drew\":72}"
