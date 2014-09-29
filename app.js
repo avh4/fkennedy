@@ -33,10 +33,10 @@ server.route({
 });
 
 server.route({
-	method: 'GET',
-	path: '/index.html',
-	handler: { file: 'build/index.html' }
-})
+  method: 'GET',
+  path: '/index.html',
+  handler: { file: 'build/index.html' }
+});
 
 server.start();
 console.log('Listening on port', port);
