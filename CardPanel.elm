@@ -65,5 +65,5 @@ view (w,h) round now = layers [
         container w 300 middle <| fittedImage 300 300 round.card.question,
         container w 200 middle <| flow right <| map choice round.card.choices
         ]
-      Nothing -> empty
+      Nothing -> container w 300 middle <| timerText "Waiting for next round..."
     ]
