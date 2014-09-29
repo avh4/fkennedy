@@ -1,13 +1,10 @@
 package net.avh4.fkennedy.app;
 
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -35,6 +32,9 @@ public class MainActivity extends ActionBarActivity {
     private List<String> choices = new ArrayList<>();
     private JSONObject round;
     private WebSocketClient mWebSocketClient;
+    private ArrayAdapter<String> adapter;
+    private ImageLoader imageLoader;
+    private ImageView image;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,13 +44,13 @@ public class MainActivity extends ActionBarActivity {
         final String uniqueId = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
-        final ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
         final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
 
         ListView list = (ListView) findViewById(R.id.list);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices);
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices);
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -67,7 +67,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        final ImageView image = (ImageView) findViewById(R.id.image);
+        image = (ImageView) findViewById(R.id.image);
 
         httpClient.setMaxRetries(5);
         ParameterMap params = httpClient.newParams();
@@ -75,16 +75,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onComplete(HttpResponse httpResponse) {
                 try {
-                    round = new JSONObject(httpResponse.getBodyAsString());
-                    choices.clear();
-                    JSONObject card = round.getJSONObject("card");
-                    if (card == null) return;
-                    JSONArray choices_ = card.getJSONArray("choices");
-                    for (int i = 0; i < choices_.length(); i++) {
-                        choices.add(choices_.getString(i));
-                    }
-                    imageLoader.displayImage(card.getString("question"), image);
-                    adapter.notifyDataSetChanged();
+                    if (updateRound(new JSONObject(httpResponse.getBodyAsString()))) return;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -100,10 +91,24 @@ public class MainActivity extends ActionBarActivity {
         connectWebSocket();
     }
 
+    private boolean updateRound(JSONObject round) throws JSONException {
+        this.round = round;
+        choices.clear();
+        JSONObject card = this.round.getJSONObject("card");
+        if (card == null) return true;
+        JSONArray choices_ = card.getJSONArray("choices");
+        for (int i = 0; i < choices_.length(); i++) {
+            choices.add(choices_.getString(i));
+        }
+        imageLoader.displayImage(card.getString("question"), image);
+        adapter.notifyDataSetChanged();
+        return false;
+    }
+
     private void connectWebSocket() {
         URI uri;
         try {
-            uri = new URI("ws://" + HOST);
+            uri = new URI("ws://" + HOST + "/api/v1/stream");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
@@ -117,14 +122,19 @@ public class MainActivity extends ActionBarActivity {
             }
 
             @Override
-            public void onMessage(String s) {
-                final String message = s;
+            public void onMessage(final String s) {
                 Log.i("Websocket", "Message " + s);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-//                        TextView textView = (TextView)findViewById(R.id.messages);
-//                        textView.setText(textView.getText() + "\n" + message);
+                        try {
+                            JSONObject message = new JSONObject(s);
+                            if (message.getString("type").equals("next")) {
+                                updateRound(message.getJSONObject("message"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             }
