@@ -6,6 +6,7 @@ import Http
 import Dict
 import Debug
 import WebSocket
+import Maybe
 
 import Parse
 import Card
@@ -39,7 +40,7 @@ r m = case m of
   _ -> Nothing
 
 round : Signal (Maybe Round)
-round = r <~ wsd
+round = keepIf Maybe.isJust Nothing (r <~ wsd)
 --round = (Round.parse <~ (parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))))
 
 parseJson : Http.Response String -> Json.Value
