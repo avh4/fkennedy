@@ -17,6 +17,7 @@
   "homepage": "https://github.com/avh4/fkennedy",
   "dependencies": {
     "hapi": "^6.9.0",
-    "redis": "^0.12.1"
+    "redis": "^0.12.1",
+    "ws": "^0.4.32"
   }
 }

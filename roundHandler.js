@@ -1,5 +1,6 @@
 var flashCards = require('./flashCardService.js');
 var storage = require('./storageService');
+var socket = require('./socketService.js');
 
 var currentRound = {};
 var gameOptions = {
@@ -17,6 +18,7 @@ var startNewRound = function(){
   currentRound.status = 'active';
   currentRound.responses = {};
   setTimeout(endRound, currentRound.timeRemaining());
+  socket.broadcast(currentRound, 'next');
 }
 
 var reportScore = function(message){
