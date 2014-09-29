@@ -16,7 +16,7 @@ import Message
 
 server = "http://localhost:4008"
 
-main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.05)) ~ players
+main = scene <~ Window.dimensions ~ round ~ (every (second * 0.05)) ~ players
 
 scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 scene dim card now players = cardScene dim card now players
@@ -31,15 +31,14 @@ ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
 
 wsd = (\m -> Debug.log "ws" <| Message.parse m) <~ ws
 
+round = (Round.parse <~ (parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))))
+
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
   Http.Success s -> case Json.fromString s of
     Just v -> v
     Nothing -> Json.Null
   _ -> Json.Null
-
-json : Signal Json.Value
-json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
 
 y : (String, Int) -> Player
 y (name, score) = {name=name,score=score}
