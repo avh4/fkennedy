@@ -1,15 +1,19 @@
 var WebSocketServer = require('ws').Server;
 
-module.exports = function(server){
-
+var initializeSocket = function(server, path){
   var options = {
-    server: server.listener,
-    path: '/api/v1/stream'
+    server: server,
+    path: path
   }
+
   var wss = new WebSocketServer(options);
 
   wss.on('connection', function(ws){
-    console.log('connected!');
+    ws.send('Great success');
   });
 }
+
+module.exports = {
+  initializeSocket: initializeSocket
+};
 
