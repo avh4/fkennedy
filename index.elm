@@ -18,9 +18,7 @@ colorBg2 = rgb 0 1 0
 main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5)) ~ players
 
 scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
-scene dim card now players = case card of
-  Just card -> cardScene dim card now players
-  Nothing -> asText "No card"
+scene dim card now players = cardScene dim card now players
 
 timerView : Round.Round -> Time -> Element
 timerView round now = 
@@ -29,16 +27,18 @@ timerView round now =
         | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
         | otherwise        -> plainText "!!!"
 
-cardScene : (Int, Int) -> Round.Round -> Time -> Maybe [Player] -> Element
+cardScene : (Int, Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 cardScene (w,h) round now players =
   (leaderboard (300, h) players)
   `beside`
-  collage (w-300) h [
-    gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h)),
-    toForm <| fittedImage 300 300 round.card.question,
-    moveY -200 <| toForm <| plainText <| join "\n" round.card.choices,
-    moveY 200 <| toForm <| timerView round now
-    ]
+  collage (w-300) h ([
+    gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1), (1, colorBg2)]) (rect (toFloat w) (toFloat h))] ++ (case round of
+      Just round -> [
+        toForm <| fittedImage 300 300 round.card.question,
+        moveY -200 <| toForm <| plainText <| join "\n" round.card.choices,
+        moveY 200 <| toForm <| timerView round now
+        ]
+      Nothing -> []))
 
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
