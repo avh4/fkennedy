@@ -17,7 +17,7 @@ import CardPanel
 import Message
 import Message (Message)
 
-server = "http://localhost:4008"
+server = "http://fkennedy.herokuapp.com"
 
 main = scene <~ Window.dimensions ~ round ~ (every (second * 0.05)) ~ players
 
@@ -30,7 +30,7 @@ cardScene (w,h) round now players =
   `beside`
   CardPanel.view (w-300,h) round now
 
-ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
+ws = WebSocket.connect "ws://fkennedy.herokuapp.com/api/v1/stream" (constant "")
 
 wsd = (\m -> Debug.log "ws" <| Message.parse m) <~ ws
 
