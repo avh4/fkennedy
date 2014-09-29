@@ -20,16 +20,21 @@ var saveRound = function(round){
 }
 
 var getScores = function(reply){
+  var next = undefined;
   var scores = {};
   client.multi()
         .hgetall('users')
         .exec(function(err, replies){
           if(err) return console.error(err);
           for(var user in replies[0]){
-            scores[user] = parseInt(replies[0][user]);
+            scores[user] = replies[0][user];
           }
-          reply(scores);
+          next(scores);
         });
+
+  return {then: function(callback){
+    next = callback;
+  }};
 }
 
 module.exports = {
