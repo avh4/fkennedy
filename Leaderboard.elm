@@ -28,7 +28,10 @@ showPlayer : Int -> Player -> Element
 showPlayer w p = color (cmix <| toFloat p.score / 100) <| container w 50 middle
   <| plainText <| p.name ++ ": " ++ (show p.score)
 
-leaderboard : (Int,Int) -> [Player] -> Element
-leaderboard (w,h) ps = color color2 <| container w h topLeft <| flow down <| [
-  plainText "Leaderboard"]
-  ++ map (showPlayer w) ps
+leaderboard : (Int,Int) -> Maybe [Player] -> Element
+leaderboard (w,h) mps = case mps of
+  Just ps ->
+    color color2 <| container w h topLeft <| flow down <| [
+    plainText "Leaderboard"]
+    ++ map (showPlayer w) ps
+  Nothing -> container w h topLeft <| asText "No players found"

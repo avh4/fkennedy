@@ -3,7 +3,10 @@ import Html (..)
 import Window
 import Json
 import Http
+import Dict
+import Debug
 
+import Parse
 import Card
 import Round
 import Leaderboard (leaderboard, Player)
@@ -14,7 +17,7 @@ colorBg2 = rgb 0 1 0
 
 main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.5)) ~ players
 
-scene : (Int,Int) -> Maybe Round.Round -> Time -> [Player] -> Element
+scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 scene dim card now players = case card of
   Just card -> cardScene dim card now players
   Nothing -> asText "No card"
@@ -26,7 +29,7 @@ timerView round now =
         | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
         | otherwise        -> plainText "!!!"
 
-cardScene : (Int, Int) -> Round.Round -> Time -> [Player] -> Element
+cardScene : (Int, Int) -> Round.Round -> Time -> Maybe [Player] -> Element
 cardScene (w,h) round now players =
   (leaderboard (300, h) players)
   `beside`
@@ -47,5 +50,24 @@ parseJson r = case r of
 json : Signal Json.Value
 json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
 
-players : Signal [Player]
-players = constant <| [{name="Aaron",score=80}, {name="Drew",score=72}]
+y : (String, Int) -> Player
+y (name, score) = {name=name,score=score}
+
+x : Dict.Dict String Int -> [Player]
+x d = map y <| Dict.toList d
+
+pi : (String, Json.Value) -> Maybe (String, Int)
+pi (key, v) = case v of
+  Json.Number n -> Just (key, floor n)
+  _ -> Nothing
+
+toIntDict : Dict.Dict String Json.Value -> Dict.Dict String Int
+toIntDict d = Dict.fromList <| filterMap pi (Dict.toList d)
+
+parsePlayers : Maybe Json.Value -> Maybe [Player]
+parsePlayers v = case v of
+  Just (Json.Object d) -> Just (x <| toIntDict d)
+  _ -> Nothing
+
+players : Signal (Maybe [Player])
+players = constant <| parsePlayers <| Json.fromString "{\"Aaron\":80,\"Drew\":72}"

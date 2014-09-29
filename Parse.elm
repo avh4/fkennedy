@@ -29,3 +29,8 @@ int v = Maybe.map floor <| float v
 
 timestamp : Json.Value -> Maybe Time
 timestamp v = Maybe.map (\x -> millisecond * x) <| float v
+
+object : (Dict.Dict String Json.Value -> c) -> Json.Value -> Maybe c
+object fn v = case v of
+  Json.Object d -> Just <| fn d
+  _ -> Nothing
