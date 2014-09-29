@@ -15,8 +15,7 @@ client.on('error', function(err){
 var saveRound = function(round){
   for(user in round.responses){
     console.log(user);
-    client.sadd('users', user);
-    if(round.responses[user].correctAnswer) client.incr(user + ':score');
+    if(round.responses[user].correctAnswer) client.hincrby('users', user, "1");
   }
 }
 
