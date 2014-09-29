@@ -26,8 +26,8 @@ mix a_ b_ x1 =
 cmix : Float -> Color
 cmix x = mix color1 color2 x
 
-playerText : String -> Text
-playerText s = Text.style { typeface = [ ]
+playerText : String -> Element
+playerText s = leftAligned <| Text.style { typeface = [ ]
   , height   = Just 24
   , color    = (hsl 0 0 0.3)
   , bold     = False
@@ -35,14 +35,26 @@ playerText s = Text.style { typeface = [ ]
   , line     = Nothing
   } <| toText s
 
+scoreText : String -> Element
+scoreText s = leftAligned <| Text.style { typeface = [ ]
+  , height   = Just 24
+  , color    = (hsl 0 0 0.0)
+  , bold     = True
+  , italic   = False
+  , line     = Nothing
+  } <| toText s
+
 showPlayer : Int -> Player -> Element
-showPlayer w p = color (cmix <| toFloat p.score / 100) <| container w 50 midLeft
-  <| (spacer 10 10) `beside` (leftAligned <| playerText <| p.name ++ ": " ++ (show p.score))
+showPlayer w p = color (cmix <| toFloat p.score / 100) <| 
+  layers [
+    container w 50 midLeft <| (spacer 15 10) `beside` playerText p.name,
+    container w 50 midRight <| (scoreText <| show p.score) `beside` (spacer 30 10)
+    ]
 
 leaderboard : (Int,Int) -> Maybe [Player] -> Element
 leaderboard (w,h) mps = case mps of
   Just ps ->
     color color2 <| container w h topLeft <| flow down <| [
-    plainText "Leaderboard"]
+    container w 50 middle <| playerText "Leaderboard"]
     ++ map (showPlayer w) (sortBy (\p -> -p.score) ps)
   Nothing -> container w h topLeft <| asText "No players found"
