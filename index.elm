@@ -5,16 +5,21 @@ import Json
 import Http
 import Dict
 import Debug
+import WebSocket
+import Maybe
 
 import Parse
 import Card
 import Round
+import Round (Round)
 import Leaderboard (leaderboard, Player)
 import CardPanel
+import Message
+import Message (Message)
 
 server = "http://localhost:4008"
 
-main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.05)) ~ players
+main = scene <~ Window.dimensions ~ round ~ (every (second * 0.05)) ~ players
 
 scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 scene dim card now players = cardScene dim card now players
@@ -25,15 +30,25 @@ cardScene (w,h) round now players =
   `beside`
   CardPanel.view (w-300,h) round now
 
+ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
+
+wsd = (\m -> Debug.log "ws" <| Message.parse m) <~ ws
+
+r : Message -> Maybe Round
+r m = case m of
+  Message.Next r -> Just r
+  _ -> Nothing
+
+round : Signal (Maybe Round)
+round = keepIf Maybe.isJust Nothing (r <~ wsd)
+--round = (Round.parse <~ (parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))))
+
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
   Http.Success s -> case Json.fromString s of
     Just v -> v
     Nothing -> Json.Null
   _ -> Json.Null
-
-json : Signal Json.Value
-json = parseJson <~ Http.sendGet (constant (server ++ "/api/v1/testCards"))
 
 y : (String, Int) -> Player
 y (name, score) = {name=name,score=score}
