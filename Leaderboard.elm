@@ -1,5 +1,7 @@
 module Leaderboard where
 
+import Text
+
 type Player = {
   name:String,
   score:Int
@@ -24,9 +26,18 @@ mix a_ b_ x1 =
 cmix : Float -> Color
 cmix x = mix color1 color2 x
 
+playerText : String -> Text
+playerText s = Text.style { typeface = [ ]
+  , height   = Just 24
+  , color    = (hsl 0 0 0.3)
+  , bold     = False
+  , italic   = False
+  , line     = Nothing
+  } <| toText s
+
 showPlayer : Int -> Player -> Element
-showPlayer w p = color (cmix <| toFloat p.score / 100) <| container w 50 middle
-  <| plainText <| p.name ++ ": " ++ (show p.score)
+showPlayer w p = color (cmix <| toFloat p.score / 100) <| container w 50 midLeft
+  <| (spacer 10 10) `beside` (leftAligned <| playerText <| p.name ++ ": " ++ (show p.score))
 
 leaderboard : (Int,Int) -> Maybe [Player] -> Element
 leaderboard (w,h) mps = case mps of
