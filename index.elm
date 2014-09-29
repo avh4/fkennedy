@@ -10,35 +10,20 @@ import Parse
 import Card
 import Round
 import Leaderboard (leaderboard, Player)
+import CardPanel
 
 server = "http://localhost:4008"
-colorBg1 t = hsl (degrees 200 + t*0.0003) 0.4 0.5
-colorBg2 t = hsl (degrees 200 + t*0.00002) 0.4 0.8
 
 main = scene <~ Window.dimensions ~ (Round.parse <~ json) ~ (every (second * 0.05)) ~ players
 
 scene : (Int,Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 scene dim card now players = cardScene dim card now players
 
-timerView : Round.Round -> Time -> Element
-timerView round now = 
-  let left = floor <| round.startTime - now + (millisecond * toFloat round.card.time)
-  in if | left > round.card.time -> plainText <| "(" ++ (show <| inSeconds <| toFloat round.card.time) ++ ")"
-        | left >= 0        -> plainText <| show <| floor <| inSeconds <| toFloat <| left
-        | otherwise        -> plainText "!!!"
-
 cardScene : (Int, Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 cardScene (w,h) round now players =
-  (leaderboard (300, h) players)
+  leaderboard (300, h) players
   `beside`
-  collage (w-300) h ([
-    gradient (linear (toFloat w * sin (now*0.0001),0) (toFloat w * sin (now*0.00007),toFloat h) [(0,colorBg1 now), (1, colorBg2 now)]) (rect (toFloat w) (toFloat h))] ++ (case round of
-      Just round -> [
-        toForm <| fittedImage 300 300 round.card.question,
-        moveY -200 <| toForm <| plainText <| join "\n" round.card.choices,
-        moveY 200 <| toForm <| timerView round now
-        ]
-      Nothing -> []))
+  CardPanel.view (w-300,h) round now
 
 parseJson : Http.Response String -> Json.Value
 parseJson r = case r of
