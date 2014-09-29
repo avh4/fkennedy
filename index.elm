@@ -69,5 +69,10 @@ parsePlayers v = case v of
   Just (Json.Object d) -> Just (x <| toIntDict d)
   _ -> Nothing
 
+pj : Http.Response String -> Maybe Json.Value
+pj r = case r of
+  Http.Success s -> Json.fromString s
+  _ -> Nothing
+
 players : Signal (Maybe [Player])
-players = constant <| parsePlayers <| Json.fromString "{\"Aaron\":80,\"Drew\":72}"
+players = parsePlayers <~ (pj <~ Http.sendGet (constant (server ++ "/api/v1/scores")))

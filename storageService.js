@@ -26,7 +26,7 @@ var getScores = function(reply){
         .exec(function(err, replies){
           if(err) return console.error(err);
           for(var user in replies[0]){
-            scores[user] = replies[0][user];
+            scores[user] = parseInt(replies[0][user]);
           }
           reply(scores);
         });
