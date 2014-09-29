@@ -12,13 +12,37 @@ currentRound.timeRemaining = function(){
   return currentRound.startTime + currentRound.card.time - new Date().getTime()
 }
 
-var startNewRound = function(){
+var activateRound = function(){
   currentRound.card = flashCards.getFlashCard();
+  currentRound.responses = {};
   currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
   currentRound.status = 'active';
+}
+
+var deactivateRound = function(){
+  currentRound.status = 'inactive';
+  currentRound.card = null;
   currentRound.responses = {};
+}
+
+var startNewRound = function(){
+  activateRound();
   setTimeout(endRound, currentRound.timeRemaining());
   socket.broadcast(currentRound, 'next');
+}
+
+var roundSummary = function(){
+  return {
+    winners: pluck(currentRound.responses, 'correctAnswer'),
+    answer: currentRound.card.answer
+  };
+}
+
+var endRound = function(){
+  socket.broadcast(roundSummary(), 'summary');
+  storage.saveRound(currentRound);
+  deactivateRound();
+  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 
 var reportScore = function(message){
@@ -28,14 +52,6 @@ var reportScore = function(message){
     response: userResponse,
     correctAnswer: userResponse === currentRound.card.answer.toLowerCase()
   }
-}
-
-var endRound = function(){
-  currentRound.status = 'inactive';
-  storage.saveRound(currentRound);
-  currentRound.card = null;
-  currentRound.responses = {};
-  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
 }
 
 var getCurrentRound = function(){
@@ -52,3 +68,10 @@ module.exports = {
   startGame: startGame
 }
 
+function pluck(collection, truthTest){
+  var truth = [];
+  for(var item in collection){
+    if(item[truthTest]) truth.push(item);
+  }
+  return truth;
+}
