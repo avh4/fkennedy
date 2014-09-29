@@ -32,7 +32,7 @@ cardScene (w,h) round now players =
   (leaderboard (300, h) players)
   `beside`
   collage (w-300) h ([
-    gradient (linear (0,0) (-100,toFloat h) [(0,colorBg1 now), (1, colorBg2 now)]) (rect (toFloat w) (toFloat h))] ++ (case round of
+    gradient (linear (toFloat w * sin (now*0.0001),0) (toFloat w * sin (now*0.00007),toFloat h) [(0,colorBg1 now), (1, colorBg2 now)]) (rect (toFloat w) (toFloat h))] ++ (case round of
       Just round -> [
         toForm <| fittedImage 300 300 round.card.question,
         moveY -200 <| toForm <| plainText <| join "\n" round.card.choices,
