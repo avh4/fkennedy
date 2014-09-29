@@ -1,9 +1,11 @@
 package net.avh4.fkennedy.app;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
@@ -13,10 +15,14 @@ import com.turbomanage.httpclient.AsyncCallback;
 import com.turbomanage.httpclient.HttpResponse;
 import com.turbomanage.httpclient.ParameterMap;
 import com.turbomanage.httpclient.android.AndroidHttpClient;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +31,10 @@ import static android.provider.Settings.Secure;
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final String HOST = "fkennedy.herokuapp.com";
     private List<String> choices = new ArrayList<>();
     private JSONObject round;
+    private WebSocketClient mWebSocketClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +47,7 @@ public class MainActivity extends ActionBarActivity {
         final ImageLoader imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
-        final AndroidHttpClient httpClient = new AndroidHttpClient("http://fkennedy.herokuapp.com");
+        final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
 
         ListView list = (ListView) findViewById(R.id.list);
         list.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices));
@@ -86,5 +94,49 @@ public class MainActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
         });
+
+        connectWebSocket();
+    }
+
+    private void connectWebSocket() {
+        URI uri;
+        try {
+            uri = new URI("ws://" + HOST);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mWebSocketClient = new WebSocketClient(uri) {
+            @Override
+            public void onOpen(ServerHandshake serverHandshake) {
+                Log.i("Websocket", "Opened");
+                mWebSocketClient.send("Hello from " + Build.MANUFACTURER + " " + Build.MODEL);
+            }
+
+            @Override
+            public void onMessage(String s) {
+                final String message = s;
+                Log.i("Websocket", "Message " + s);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        TextView textView = (TextView)findViewById(R.id.messages);
+//                        textView.setText(textView.getText() + "\n" + message);
+                    }
+                });
+            }
+
+            @Override
+            public void onClose(int i, String s, boolean b) {
+                Log.i("Websocket", "Closed " + s);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.i("Websocket", "Error " + e.getMessage());
+            }
+        };
+        mWebSocketClient.connect();
     }
 }
