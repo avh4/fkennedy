@@ -45,12 +45,22 @@ titleText s = leftAligned <| Text.style { typeface = [ ]
 fmtTimer : Int -> String
 fmtTimer t = "0:" ++ (String.padLeft 2 '0' <| show <| floor <| inSeconds <| toFloat t)
 
+data TimerState =
+  Before Int | Running Int | Done
+
+toTimer : Time -> Int -> Time -> TimerState
+toTimer startTime time now = 
+  let left = floor <| startTime - now + (millisecond * toFloat time)
+  in if | left > time -> Before time
+        | left >= 0   -> Running left
+        | otherwise   -> Done
+
 timerView : Round.Round -> Time -> Element
 timerView round now = 
-  let left = floor <| round.startTime - now + (millisecond * toFloat round.card.time)
-  in if | left > round.card.time -> timerText <| "(" ++ (fmtTimer round.card.time) ++ ")"
-        | left >= 0        -> timerText <| fmtTimer left
-        | otherwise        -> timerText "Time's up"
+  case toTimer round.startTime round.card.time now of
+    Before t -> timerText <| "(" ++ (fmtTimer round.card.time) ++ ")"
+    Running t -> timerText <| fmtTimer t
+    Done -> timerText "Time's up"
 
 choice : String -> Element
 choice s = container 160 60 middle <| color (hsl (degrees 100) 0.2 0.9) <| container 140 40 middle <| choiceText s
