@@ -9,6 +9,12 @@ node app.js &
 open http://localhost:40008/index.elm
 ```
 
+## Simulating answers
+
+```bash
+curl -X GET 'http://localhost:4008/api/v1/reportAnswer?Text=Aaron&From=777777'
+```
+
 # Production
 
 ```bash
