@@ -39,7 +39,7 @@ var getScores = function(){
         .exec(function(err, replies){
           if(err) return console.error(err);
           var users = replies[0];
-          var names = replies[1];
+          var names = replies[1] || {};
           for(var playerId in users){
             var name = names[playerId] || anonymouseName(playerId);
             scores.push({ name: name, score: +users[playerId]});
