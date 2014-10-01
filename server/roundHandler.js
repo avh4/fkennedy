@@ -12,8 +12,14 @@ currentRound.timeRemaining = function(){
   return currentRound.startTime + currentRound.card.time - new Date().getTime()
 }
 
+function shuffle(o){ //v1.0
+    for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+    return o;
+};
+
 var activateRound = function(){
   currentRound.card = flashCards.getFlashCard();
+  currentRound.choices = shuffle([ 'Aaron', 'Drew', 'George', 'Barack' ]);
   currentRound.responses = {};
   currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
   currentRound.status = 'active';

@@ -86,7 +86,7 @@ view (w,h) round now = layers [
         container w 110 middle <| timerView round now,
         container w 300 middle <| fittedImage 300 300 round.card.question,
         container w 40 midBottom <| plainText "Text to 858-365-0360, or use the mobile app to play",
-        container w 100 middle <| flow right <| map (choice round.card.answer (isOver round now)) round.card.choices
+        container w 100 middle <| flow right <| map (choice round.card.answer (isOver round now)) round.choices
         ]
       Nothing -> container w 300 middle <| timerText "Waiting for next round..."
     ]
