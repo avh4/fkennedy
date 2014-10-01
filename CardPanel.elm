@@ -1,8 +1,10 @@
 module CardPanel where
 
 import Round
+import Round (Round)
 import Text
 import String
+import Debug
 
 colorBg1 t = hsl (degrees 200 + t*0.0003) 0.4 0.5
 colorBg2 t = hsl (degrees 200 + t*0.00002) 0.4 0.8
@@ -62,8 +64,18 @@ timerView round now =
     Running t -> timerText <| fmtTimer t
     Done -> timerText "Time's up"
 
-choice : String -> Element
-choice s = container 160 60 middle <| color (hsl (degrees 100) 0.2 0.9) <| container 140 40 middle <| choiceText s
+choiceColor : String -> Bool -> String -> Color
+choiceColor answer b s = 
+  let match = b && answer == s
+  in (hsl (degrees 100) (if match then 0.9 else 0.2) (if match then 0.5 else 0.9))
+
+choice : String -> Bool -> String -> Element
+choice answer b s = container 160 60 middle <| color (choiceColor answer b s) <| container 140 40 middle <| choiceText s
+
+isOver : Round -> Time -> Bool
+isOver r now = case toTimer r.startTime r.card.time now of
+  Done -> True
+  _ -> False
 
 view (w,h) round now = layers [
     background (w,h) now,
@@ -74,7 +86,7 @@ view (w,h) round now = layers [
         container w 110 middle <| timerView round now,
         container w 300 middle <| fittedImage 300 300 round.card.question,
         container w 40 midBottom <| plainText "Text to 858-365-0360, or use the mobile app to play",
-        container w 100 middle <| flow right <| map choice round.card.choices
+        container w 100 middle <| flow right <| map (choice round.card.answer (isOver round now)) round.card.choices
         ]
       Nothing -> container w 300 middle <| timerText "Waiting for next round..."
     ]
