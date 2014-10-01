@@ -29,7 +29,10 @@ server.route({
   method: 'GET',
   path: '/api/v1/reportAnswer',
   handler: function(request, reply){
-    roundHandler.reportScore(request.url.query);
+    var message = request.url.query;
+    var from = message.From || message.msisdn;
+    var answer = message.Text || message.text;
+    roundHandler.reportScore(from, answer);
     reply('200: OK');
   }
 });

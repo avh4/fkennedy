@@ -49,14 +49,10 @@ var endRound = function(){
          });
 }
 
-var reportScore = function(message){
+var reportScore = function(userId, answer){
   if(currentRound.status === 'inactive') return;
-  if(message.Text){
-    message.text = message.Text;
-    message.msisdn = message.From;
-  }
-  var userResponse = message.text.toLowerCase();
-  currentRound.responses[message.msisdn] = {
+  var userResponse = answer.toLowerCase();
+  currentRound.responses[userId] = {
     response: userResponse,
     correctAnswer: userResponse === currentRound.card.answer.toLowerCase()
   }
