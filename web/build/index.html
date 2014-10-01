@@ -12385,7 +12385,7 @@ Elm.CardPanel.make = function (_elm) {
       return function () {
          var _v0 = A3(toTimer,
          r.startTime,
-         r.card.time,
+         r.time,
          now);
          switch (_v0.ctor)
          {case "Done": return true;}
@@ -12444,12 +12444,12 @@ Elm.CardPanel.make = function (_elm) {
       return function () {
          var _v1 = A3(toTimer,
          round.startTime,
-         round.card.time,
+         round.time,
          now);
          switch (_v1.ctor)
          {case "Before":
             return timerText(_L.append("(",
-              _L.append(fmtTimer(round.card.time),
+              _L.append(fmtTimer(round.time),
               ")")));
             case "Done":
             return timerText("Time\'s up");
@@ -12546,7 +12546,7 @@ Elm.CardPanel.make = function (_elm) {
                                                                               A2(isOver,
                                                                               round._0,
                                                                               now)),
-                                                                              round._0.card.choices)))]));
+                                                                              round._0.choices)))]));
                                                                case "Nothing":
                                                                return A3($Graphics$Element.container,
                                                                  _v8._0,
@@ -12605,18 +12605,38 @@ Elm.Round.make = function (_elm) {
                     var _v4 = _v0.card;
                     switch (_v4.ctor)
                     {case "Just":
-                       return $Maybe.Just({_: {}
-                                          ,card: _v4._0
-                                          ,startTime: _v2._0});
+                       return function () {
+                            var _v6 = _v0.choices;
+                            switch (_v6.ctor)
+                            {case "Just":
+                               return function () {
+                                    var _v8 = _v0.time;
+                                    switch (_v8.ctor)
+                                    {case "Just":
+                                       return $Maybe.Just({_: {}
+                                                          ,card: _v4._0
+                                                          ,choices: _v6._0
+                                                          ,startTime: _v2._0
+                                                          ,time: _v8._0});
+                                       case "Nothing":
+                                       return $Maybe.Nothing;}
+                                    _E.Case($moduleName,
+                                    "between lines 22 and 24");
+                                 }();
+                               case "Nothing":
+                               return $Maybe.Nothing;}
+                            _E.Case($moduleName,
+                            "between lines 20 and 24");
+                         }();
                        case "Nothing":
                        return $Maybe.Nothing;}
                     _E.Case($moduleName,
-                    "between lines 16 and 18");
+                    "between lines 18 and 24");
                  }();
                case "Nothing":
                return $Maybe.Nothing;}
             _E.Case($moduleName,
-            "between lines 14 and 18");
+            "between lines 16 and 24");
          }();
       }();
    };
@@ -12629,17 +12649,30 @@ Elm.Round.make = function (_elm) {
                        "card",
                        $Card.parse,
                        json._0)
+                       ,choices: A3($Parse.p,
+                       "choices",
+                       $Parse.stringArray,
+                       json._0)
                        ,startTime: A3($Parse.p,
                        "startTime",
                        $Parse.timestamp,
+                       json._0)
+                       ,time: A3($Parse.p,
+                       "time",
+                       $Parse.$int,
                        json._0)});}
          return $Maybe.Nothing;
       }();
    };
-   var Round = F2(function (a,b) {
+   var Round = F4(function (a,
+   b,
+   c,
+   d) {
       return {_: {}
              ,card: b
-             ,startTime: a};
+             ,choices: c
+             ,startTime: a
+             ,time: d};
    });
    _elm.Round.values = {_op: _op
                        ,Round: Round
@@ -12669,41 +12702,21 @@ Elm.Card.make = function (_elm) {
             switch (_v2.ctor)
             {case "Just":
                return function () {
-                    var _v4 = _v0.choices;
+                    var _v4 = _v0.answer;
                     switch (_v4.ctor)
                     {case "Just":
-                       return function () {
-                            var _v6 = _v0.time;
-                            switch (_v6.ctor)
-                            {case "Just":
-                               return function () {
-                                    var _v8 = _v0.answer;
-                                    switch (_v8.ctor)
-                                    {case "Just":
-                                       return $Maybe.Just({_: {}
-                                                          ,answer: _v8._0
-                                                          ,choices: _v4._0
-                                                          ,question: _v2._0
-                                                          ,time: _v6._0});
-                                       case "Nothing":
-                                       return $Maybe.Nothing;}
-                                    _E.Case($moduleName,
-                                    "between lines 21 and 23");
-                                 }();
-                               case "Nothing":
-                               return $Maybe.Nothing;}
-                            _E.Case($moduleName,
-                            "between lines 19 and 23");
-                         }();
+                       return $Maybe.Just({_: {}
+                                          ,answer: _v4._0
+                                          ,question: _v2._0});
                        case "Nothing":
                        return $Maybe.Nothing;}
                     _E.Case($moduleName,
-                    "between lines 17 and 23");
+                    "between lines 15 and 17");
                  }();
                case "Nothing":
                return $Maybe.Nothing;}
             _E.Case($moduleName,
-            "between lines 15 and 23");
+            "between lines 13 and 17");
          }();
       }();
    };
@@ -12716,30 +12729,17 @@ Elm.Card.make = function (_elm) {
                        "answer",
                        $Parse.string,
                        json._0)
-                       ,choices: A3($Parse.p,
-                       "choices",
-                       $Parse.stringArray,
-                       json._0)
                        ,question: A3($Parse.p,
                        "question",
                        $Parse.string,
-                       json._0)
-                       ,time: A3($Parse.p,
-                       "time",
-                       $Parse.$int,
                        json._0)});}
          return $Maybe.Nothing;
       }();
    };
-   var Card = F4(function (a,
-   b,
-   c,
-   d) {
+   var Card = F2(function (a,b) {
       return {_: {}
-             ,answer: d
-             ,choices: b
-             ,question: a
-             ,time: c};
+             ,answer: b
+             ,question: a};
    });
    _elm.Card.values = {_op: _op
                       ,Card: Card
@@ -13131,9 +13131,10 @@ Elm.Leaderboard.make = function (_elm) {
                                                                                                                  w,
                                                                                                                  50,
                                                                                                                  $Graphics$Element.midRight)(A2($Graphics$Element.beside,
-                                                                                                                 scoreText($String.show(p.score)),
+                                                                                                                 scoreText(_L.append($String.show(p.score),
+                                                                                                                 "%")),
                                                                                                                  A2($Graphics$Element.spacer,
-                                                                                                                 30,
+                                                                                                                 15,
                                                                                                                  10)))])));
    });
    var leaderboard = F2(function (_v0,
