@@ -9,7 +9,7 @@ var gameOptions = {
 }
 
 currentRound.timeRemaining = function(){
-  return currentRound.startTime + currentRound.card.time - new Date().getTime()
+  return currentRound.startTime + currentRound.time - new Date().getTime()
 }
 
 function shuffle(o){ //v1.0
@@ -23,6 +23,7 @@ var activateRound = function(){
   currentRound.responses = {};
   currentRound.startTime = new Date().getTime() + gameOptions.timeOffset;
   currentRound.status = 'active';
+  currentRound.time = 10000; // milliseconds
 }
 
 var deactivateRound = function(){

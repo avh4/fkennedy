@@ -59,8 +59,8 @@ toTimer startTime time now =
 
 timerView : Round.Round -> Time -> Element
 timerView round now = 
-  case toTimer round.startTime round.card.time now of
-    Before t -> timerText <| "(" ++ (fmtTimer round.card.time) ++ ")"
+  case toTimer round.startTime round.time now of
+    Before t -> timerText <| "(" ++ (fmtTimer round.time) ++ ")"
     Running t -> timerText <| fmtTimer t
     Done -> timerText "Time's up"
 
@@ -73,7 +73,7 @@ choice : String -> Bool -> String -> Element
 choice answer b s = container 160 60 middle <| color (choiceColor answer b s) <| container 140 40 middle <| choiceText s
 
 isOver : Round -> Time -> Bool
-isOver r now = case toTimer r.startTime r.card.time now of
+isOver r now = case toTimer r.startTime r.time now of
   Done -> True
   _ -> False
 
