@@ -18,7 +18,12 @@ var card4 = {
   answer: "Barack",
 }
 
-var testCards = [card1, card2, card3, card4];
+var card5 = {
+  question: "http://img2.wikia.nocookie.net/__cb20130107235959/trollpasta/images/9/93/Strong_Bad_E1_HR.png",
+  answer: "Strong",
+}
+
+var testCards = [card1, card2, card3, card4, card5];
 
 module.exports = testCards;
 
