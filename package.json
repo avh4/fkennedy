@@ -2,7 +2,7 @@
   "name": "fkennedy",
   "version": "0.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "server/app.js",
   "scripts": {
     "test": "say -v 'good news' Great Success!"
   },
