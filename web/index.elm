@@ -27,9 +27,9 @@ scene dim card now players = cardScene dim card now players
 
 cardScene : (Int, Int) -> Maybe Round.Round -> Time -> Maybe [Player] -> Element
 cardScene (w,h) round now players =
-  leaderboard (300, h) players
+  leaderboard (340, h) players
   `beside`
-  CardPanel.view (w-300,h) round now
+  CardPanel.view (w-340,h) round now
 
 ws = WebSocket.connect "ws://localhost:4008/api/v1/stream" (constant "")
 

@@ -30,9 +30,9 @@ server.route({
   path: '/api/v1/reportAnswer',
   handler: function(request, reply){
     var message = request.url.query;
-    var from = message.From || message.msisdn;
+    var playerId = message.From || message.msisdn;
     var answer = message.Text || message.text;
-    roundHandler.reportScore(from, answer);
+    roundHandler.reportScore(playerId, answer);
     reply('200: OK');
   }
 });
