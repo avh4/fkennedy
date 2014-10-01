@@ -1,4 +1,4 @@
-/build/
-/cache/
-/elm_dependencies/
+/web/build/
+/web/cache/
+/web/elm_dependencies/
 /node_modules/

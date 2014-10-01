@@ -48,7 +48,7 @@ server.route({
 server.route({
   method: 'GET',
   path: '/',
-  handler: { file: 'build/index.html' }
+  handler: { file: 'web/build/index.html' }
 });
 
 server.start();
