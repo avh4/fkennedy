@@ -12349,6 +12349,49 @@ Elm.CardPanel.make = function (_elm) {
    $String = Elm.String.make(_elm),
    $Text = Elm.Text.make(_elm),
    $Time = Elm.Time.make(_elm);
+   var choiceColor = F3(function (answer,
+   b,
+   s) {
+      return function () {
+         var match = b && _U.eq(answer,
+         s);
+         return A3($Color.hsl,
+         $Basics.degrees(100),
+         match ? 0.9 : 0.2,
+         match ? 0.5 : 0.9);
+      }();
+   });
+   var Done = {ctor: "Done"};
+   var Running = function (a) {
+      return {ctor: "Running"
+             ,_0: a};
+   };
+   var Before = function (a) {
+      return {ctor: "Before"
+             ,_0: a};
+   };
+   var toTimer = F3(function (startTime,
+   time,
+   now) {
+      return function () {
+         var left = $Basics.floor(startTime - now + $Time.millisecond * $Basics.toFloat(time));
+         return _U.cmp(left,
+         time) > 0 ? Before(time) : _U.cmp(left,
+         0) > -1 ? Running(left) : Done;
+      }();
+   });
+   var isOver = F2(function (r,
+   now) {
+      return function () {
+         var _v0 = A3(toTimer,
+         r.startTime,
+         r.card.time,
+         now);
+         switch (_v0.ctor)
+         {case "Done": return true;}
+         return false;
+      }();
+   });
    var fmtTimer = function (t) {
       return _L.append("0:",
       A2($String.padLeft,
@@ -12373,18 +12416,20 @@ Elm.CardPanel.make = function (_elm) {
                                            ,line: $Maybe.Nothing
                                            ,typeface: _L.fromArray([])})($Text.toText(s)));
    };
-   var choice = function (s) {
+   var choice = F3(function (answer,
+   b,
+   s) {
       return A3($Graphics$Element.container,
       160,
       60,
-      $Graphics$Element.middle)($Graphics$Element.color(A3($Color.hsl,
-      $Basics.degrees(100),
-      0.2,
-      0.9))(A3($Graphics$Element.container,
+      $Graphics$Element.middle)($Graphics$Element.color(A3(choiceColor,
+      answer,
+      b,
+      s))(A3($Graphics$Element.container,
       140,
       40,
       $Graphics$Element.middle)(choiceText(s))));
-   };
+   });
    var timerText = function (s) {
       return $Text.leftAligned($Text.style({_: {}
                                            ,bold: true
@@ -12397,12 +12442,21 @@ Elm.CardPanel.make = function (_elm) {
    var timerView = F2(function (round,
    now) {
       return function () {
-         var left = $Basics.floor(round.startTime - now + $Time.millisecond * $Basics.toFloat(round.card.time));
-         return _U.cmp(left,
-         round.card.time) > 0 ? timerText(_L.append("(",
-         _L.append(fmtTimer(round.card.time),
-         ")"))) : _U.cmp(left,
-         0) > -1 ? timerText(fmtTimer(left)) : timerText("Time\'s up");
+         var _v1 = A3(toTimer,
+         round.startTime,
+         round.card.time,
+         now);
+         switch (_v1.ctor)
+         {case "Before":
+            return timerText(_L.append("(",
+              _L.append(fmtTimer(round.card.time),
+              ")")));
+            case "Done":
+            return timerText("Time\'s up");
+            case "Running":
+            return timerText(fmtTimer(_v1._0));}
+         _E.Case($moduleName,
+         "between lines 62 and 65");
       }();
    });
    var colorBg2 = function (t) {
@@ -12417,22 +12471,22 @@ Elm.CardPanel.make = function (_elm) {
       0.4,
       0.5);
    };
-   var background = F2(function (_v0,
+   var background = F2(function (_v4,
    now) {
       return function () {
-         switch (_v0.ctor)
+         switch (_v4.ctor)
          {case "_Tuple2":
             return A3($Graphics$Collage.collage,
-              _v0._0,
-              _v0._1,
+              _v4._0,
+              _v4._1,
               _L.fromArray([A2($Graphics$Collage.gradient,
               A3($Color.linear,
               {ctor: "_Tuple2"
-              ,_0: $Basics.toFloat(_v0._0) * $Basics.sin(now * 1.0e-4)
+              ,_0: $Basics.toFloat(_v4._0) * $Basics.sin(now * 1.0e-4)
               ,_1: 0},
               {ctor: "_Tuple2"
-              ,_0: $Basics.toFloat(_v0._0) * $Basics.sin(now * 7.0e-5)
-              ,_1: $Basics.toFloat(_v0._1)},
+              ,_0: $Basics.toFloat(_v4._0) * $Basics.sin(now * 7.0e-5)
+              ,_1: $Basics.toFloat(_v4._1)},
               _L.fromArray([{ctor: "_Tuple2"
                             ,_0: 0
                             ,_1: colorBg1(now)}
@@ -12440,22 +12494,22 @@ Elm.CardPanel.make = function (_elm) {
                             ,_0: 1
                             ,_1: colorBg2(now)}])),
               A2($Graphics$Collage.rect,
-              $Basics.toFloat(_v0._0),
-              $Basics.toFloat(_v0._1)))]));}
+              $Basics.toFloat(_v4._0),
+              $Basics.toFloat(_v4._1)))]));}
          _E.Case($moduleName,
-         "between lines 11 and 16");
+         "between lines 13 and 18");
       }();
    });
-   var view = F3(function (_v4,
+   var view = F3(function (_v8,
    round,
    now) {
       return function () {
-         switch (_v4.ctor)
+         switch (_v8.ctor)
          {case "_Tuple2":
             return $Graphics$Element.layers(_L.fromArray([A2(background,
                                                          {ctor: "_Tuple2"
-                                                         ,_0: _v4._0
-                                                         ,_1: _v4._1},
+                                                         ,_0: _v8._0
+                                                         ,_1: _v8._1},
                                                          now)
                                                          ,function () {
                                                             switch (round.ctor)
@@ -12463,42 +12517,46 @@ Elm.CardPanel.make = function (_elm) {
                                                                return A2($Graphics$Element.flow,
                                                                  $Graphics$Element.down,
                                                                  _L.fromArray([A3($Graphics$Element.container,
-                                                                              _v4._0,
+                                                                              _v8._0,
                                                                               70,
                                                                               $Graphics$Element.midBottom)(titleText("Name that dude!"))
                                                                               ,A3($Graphics$Element.container,
-                                                                              _v4._0,
+                                                                              _v8._0,
                                                                               110,
                                                                               $Graphics$Element.middle)(A2(timerView,
                                                                               round._0,
                                                                               now))
                                                                               ,A3($Graphics$Element.container,
-                                                                              _v4._0,
+                                                                              _v8._0,
                                                                               300,
                                                                               $Graphics$Element.middle)(A3($Graphics$Element.fittedImage,
                                                                               300,
                                                                               300,
                                                                               round._0.card.question))
                                                                               ,A3($Graphics$Element.container,
-                                                                              _v4._0,
+                                                                              _v8._0,
                                                                               40,
                                                                               $Graphics$Element.midBottom)($Text.plainText("Text to 858-365-0360, or use the mobile app to play"))
                                                                               ,A3($Graphics$Element.container,
-                                                                              _v4._0,
+                                                                              _v8._0,
                                                                               100,
                                                                               $Graphics$Element.middle)($Graphics$Element.flow($Graphics$Element.right)(A2($List.map,
-                                                                              choice,
+                                                                              A2(choice,
+                                                                              round._0.card.answer,
+                                                                              A2(isOver,
+                                                                              round._0,
+                                                                              now)),
                                                                               round._0.card.choices)))]));
                                                                case "Nothing":
                                                                return A3($Graphics$Element.container,
-                                                                 _v4._0,
+                                                                 _v8._0,
                                                                  300,
                                                                  $Graphics$Element.middle)(timerText("Waiting for next round..."));}
                                                             _E.Case($moduleName,
-                                                            "between lines 60 and 70");
+                                                            "between lines 82 and 92");
                                                          }()]));}
          _E.Case($moduleName,
-         "between lines 58 and 70");
+         "between lines 80 and 92");
       }();
    });
    _elm.CardPanel.values = {_op: _op
@@ -12509,8 +12567,14 @@ Elm.CardPanel.make = function (_elm) {
                            ,choiceText: choiceText
                            ,titleText: titleText
                            ,fmtTimer: fmtTimer
+                           ,Before: Before
+                           ,Running: Running
+                           ,Done: Done
+                           ,toTimer: toTimer
                            ,timerView: timerView
+                           ,choiceColor: choiceColor
                            ,choice: choice
+                           ,isOver: isOver
                            ,view: view};
    return _elm.CardPanel.values;
 };Elm.Round = Elm.Round || {};
@@ -12612,24 +12676,34 @@ Elm.Card.make = function (_elm) {
                             var _v6 = _v0.time;
                             switch (_v6.ctor)
                             {case "Just":
-                               return $Maybe.Just({_: {}
-                                                  ,choices: _v4._0
-                                                  ,question: _v2._0
-                                                  ,time: _v6._0});
+                               return function () {
+                                    var _v8 = _v0.answer;
+                                    switch (_v8.ctor)
+                                    {case "Just":
+                                       return $Maybe.Just({_: {}
+                                                          ,answer: _v8._0
+                                                          ,choices: _v4._0
+                                                          ,question: _v2._0
+                                                          ,time: _v6._0});
+                                       case "Nothing":
+                                       return $Maybe.Nothing;}
+                                    _E.Case($moduleName,
+                                    "between lines 21 and 23");
+                                 }();
                                case "Nothing":
                                return $Maybe.Nothing;}
                             _E.Case($moduleName,
-                            "between lines 18 and 20");
+                            "between lines 19 and 23");
                          }();
                        case "Nothing":
                        return $Maybe.Nothing;}
                     _E.Case($moduleName,
-                    "between lines 16 and 20");
+                    "between lines 17 and 23");
                  }();
                case "Nothing":
                return $Maybe.Nothing;}
             _E.Case($moduleName,
-            "between lines 14 and 20");
+            "between lines 15 and 23");
          }();
       }();
    };
@@ -12638,6 +12712,10 @@ Elm.Card.make = function (_elm) {
          switch (json.ctor)
          {case "Object":
             return unm({_: {}
+                       ,answer: A3($Parse.p,
+                       "answer",
+                       $Parse.string,
+                       json._0)
                        ,choices: A3($Parse.p,
                        "choices",
                        $Parse.stringArray,
@@ -12653,8 +12731,12 @@ Elm.Card.make = function (_elm) {
          return $Maybe.Nothing;
       }();
    };
-   var Card = F3(function (a,b,c) {
+   var Card = F4(function (a,
+   b,
+   c,
+   d) {
       return {_: {}
+             ,answer: d
              ,choices: b
              ,question: a
              ,time: c};
