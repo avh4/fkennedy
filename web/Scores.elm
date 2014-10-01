@@ -3,22 +3,27 @@ module Scores where
 import Json
 import Leaderboard (Player)
 import Dict
+import Parse
 
-y : (String, Int) -> Player
-y (name, score) = {name=name,score=score}
+unm : { name:Maybe String, score:Maybe Int} -> Maybe Player
+unm {name, score} =
+  case name of
+    Nothing -> Nothing
+    Just n -> case score of
+      Nothing -> Nothing
+      Just s -> Just { name=n, score=s }
 
-x : Dict.Dict String Int -> [Player]
-x d = map y <| Dict.toList d
-
-pi : (String, Json.Value) -> Maybe (String, Int)
-pi (key, v) = case v of
-  Json.Number n -> Just (key, floor n)
-  _ -> Nothing
-
-toIntDict : Dict.Dict String Json.Value -> Dict.Dict String Int
-toIntDict d = Dict.fromList <| filterMap pi (Dict.toList d)
+toPlayer : Json.Value -> Maybe Player
+toPlayer json = 
+  case json of
+    Json.Object c ->
+      unm {
+      name = Parse.p "name" Parse.string c,
+      score = Parse.p "score" Parse.int c
+      }
+    _ -> Nothing
 
 parse : Maybe Json.Value -> Maybe [Player]
 parse v = case v of
-  Just (Json.Object d) -> Just (x <| toIntDict d)
+  Just (Json.Array a) -> Just <| filterMap toPlayer a
   _ -> Nothing

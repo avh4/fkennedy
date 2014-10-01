@@ -1,5 +1,6 @@
 var redis = require('redis');
 var url = require('url');
+var crypto = require('crypto');
 
 if(process.env.REDISTOGO_URL){
   var redisURL = url.parse(process.env.REDISTOGO_URL);
@@ -20,15 +21,28 @@ var saveRound = function(round){
   }
 }
 
-var getScores = function(reply){
+var adjs = { '0': 'Mellow', '1': 'Cool', '2': 'Peaceful', '3': 'Electric', '4': 'Determined', '5': 'Lucky', '6': 'Lovable', '7': 'Serene', '8': 'Wild', '9': 'Benevolent', 'a': 'Profound', 'b': 'Subtle', 'c': 'Loquacious', 'd': 'Charming', 'e': 'Ubiquitous', 'f': 'Fancy'};
+var animals = { '0': 'Marmot', '1': 'Cucumber', '2': 'Penguin', '3': 'Emu', '4': 'Dachshund', '5': 'Llama', '6': 'Lamprey', '7': 'Skylark', '8': 'Wildebeest', '9': 'Barnacle', 'a': 'Osprey', 'b': 'Antelope', 'c': 'Leopard', 'd': 'Chipmunk', 'e': 'Yak', 'f': 'Fox'};
+var anonymouseName = function(playerId) {
+  var shasum = crypto.createHash('sha1');
+  shasum.update(playerId);
+  var digest = shasum.digest('hex');
+  return adjs[digest[3]] + " " + animals[digest[5]];
+}
+
+var getScores = function(){
   var next = undefined;
-  var scores = {};
+  var scores = [];
   client.multi()
         .hgetall('users')
+        .hgetall('player:names')
         .exec(function(err, replies){
           if(err) return console.error(err);
-          for(var user in replies[0]){
-            scores[user] = +replies[0][user];
+          var users = replies[0];
+          var names = replies[1];
+          for(var playerId in users){
+            var name = names[playerId] || anonymouseName(playerId);
+            scores.push({ name: name, score: +users[playerId]});
           }
           next(scores);
         });
@@ -38,8 +52,13 @@ var getScores = function(reply){
   }};
 }
 
+var setPlayerName = function(playerId, name) {
+  client.hset('player:names', playerId, name);
+}
+
 module.exports = {
   saveRound: saveRound,
-  getScores: getScores
+  getScores: getScores,
+  setPlayerName: setPlayerName
 }
 
