@@ -31,3 +31,6 @@ exports.getChoices = function(card) {
   return shuffle(Object.keys(choices));
 };
 
+exports.getNumberOfCards = function() {
+  return testCards.length;
+}

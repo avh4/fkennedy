@@ -39,6 +39,7 @@ var anonymouseName = function(playerId) {
 }
 
 var getScores = function(){
+  var numberOfCards = require('./flashCardService').getNumberOfCards();
   var next = undefined;
   var scoreboard = [];
   client.multi()
@@ -50,7 +51,7 @@ var getScores = function(){
           var names = replies[1] || {};
           for(var playerId in scores){
             var name = names[playerId] || anonymouseName(playerId);
-            scoreboard.push({ name: name, score: +scores[playerId]});
+            scoreboard.push({ name: name, score: 100 * scores[playerId] / numberOfCards });
           }
           next(scoreboard);
         });
