@@ -20,15 +20,15 @@ var saveRound = function(round){
   }
 }
 
-var getScores = function(reply){
+var getScores = function(){
   var next = undefined;
-  var scores = {};
+  var scores = [];
   client.multi()
         .hgetall('users')
         .exec(function(err, replies){
           if(err) return console.error(err);
           for(var user in replies[0]){
-            scores[user] = +replies[0][user];
+            scores.push({ name: user, score: +replies[0][user]});
           }
           next(scores);
         });
