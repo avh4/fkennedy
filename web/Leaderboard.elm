@@ -48,7 +48,7 @@ showPlayer : Int -> Player -> Element
 showPlayer w p = color (cmix <| toFloat p.score / 100) <| 
   layers [
     container w 50 midLeft <| (spacer 15 10) `beside` playerText p.name,
-    container w 50 midRight <| (scoreText <| show p.score) `beside` (spacer 30 10)
+    container w 50 midRight <| (scoreText <| (show p.score) ++ "%") `beside` (spacer 15 10)
     ]
 
 leaderboard : (Int,Int) -> Maybe [Player] -> Element

@@ -15,9 +15,17 @@ client.on('error', function(err){
 });
 
 var saveRound = function(round){
-  for(user in round.responses){
-    console.log(user);
-    if(round.responses[user].correctAnswer) client.hincrby('users', user, "1");
+  for(playerId in round.responses){
+    console.log("Round ended: " + JSON.stringify(round));
+    if(round.responses[playerId].correctAnswer) {
+      client.multi()
+        .sadd('player:correct:' + playerId, round.card.question)
+        .scard('player:correct:' + playerId)
+        .exec(function(err, res) {
+          var count = res[1];
+          client.hset('player:scores', playerId, count);
+      });
+    }
   }
 }
 
@@ -31,20 +39,21 @@ var anonymouseName = function(playerId) {
 }
 
 var getScores = function(){
+  var numberOfCards = require('./flashCardService').getNumberOfCards();
   var next = undefined;
-  var scores = [];
+  var scoreboard = [];
   client.multi()
-        .hgetall('users')
+        .hgetall('player:scores')
         .hgetall('player:names')
         .exec(function(err, replies){
           if(err) return console.error(err);
-          var users = replies[0];
+          var scores = replies[0];
           var names = replies[1] || {};
-          for(var playerId in users){
+          for(var playerId in scores){
             var name = names[playerId] || anonymouseName(playerId);
-            scores.push({ name: name, score: +users[playerId]});
+            scoreboard.push({ name: name, score: 100 * scores[playerId] / numberOfCards });
           }
-          next(scores);
+          next(scoreboard);
         });
 
   return {then: function(callback){
