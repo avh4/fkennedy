@@ -56,9 +56,9 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ParameterMap params = httpClient.newParams()
-                        .add("text", choices.get(position))
-                        .add("msisdn", uniqueId);
-                httpClient.get("/api/v1/reportScore", params, new AsyncCallback() {
+                        .add("Text", choices.get(position))
+                        .add("From", uniqueId);
+                httpClient.get("/api/v1/reportAnswer", params, new AsyncCallback() {
                     @Override
                     public void onComplete(HttpResponse httpResponse) {
                         Toast.makeText(MainActivity.this, "Sent!", Toast.LENGTH_LONG).show();

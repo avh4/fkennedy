@@ -18,15 +18,6 @@ server.route({
 
 server.route({
   method: 'GET',
-  path: '/api/v1/reportScore',
-  handler: function(request, reply){
-    roundHandler.reportScore(request.url.query);
-    reply('200: OK');
-  }
-});
-
-server.route({
-  method: 'GET',
   path: '/api/v1/reportAnswer',
   handler: function(request, reply){
     var message = request.url.query;

@@ -66,7 +66,7 @@
 #pragma mark - <UITableViewDelegate>
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://fkennedy.herokuapp.com/api/v1/reportScore?msisdn=%@&text=%@", [UIDevice currentDevice].identifierForVendor.UUIDString, self.choices[indexPath.row]]]];
+  NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://fkennedy.herokuapp.com/api/v1/reportAnswer?From=%@&Text=%@", [UIDevice currentDevice].identifierForVendor.UUIDString, self.choices[indexPath.row]]]];
   [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
     NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
     NSLog(@"%ld", (long)httpResponse.statusCode);
