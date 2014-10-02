@@ -4,14 +4,13 @@ import Json
 import Leaderboard (Player)
 import Dict
 import Parse
+import Common (..)
 
 unm : { name:Maybe String, score:Maybe Int} -> Maybe Player
 unm {name, score} =
-  case name of
-    Nothing -> Nothing
-    Just n -> case score of
-      Nothing -> Nothing
-      Just s -> Just { name=n, score=s }
+  name `andThen` \n ->
+  score `andThen` \s ->
+  Just { name=n, score=s }
 
 toPlayer : Json.Value -> Maybe Player
 toPlayer json = 
