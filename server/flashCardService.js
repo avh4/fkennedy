@@ -1,10 +1,15 @@
-var testCards = require('./testCards');
-
+var testCards;
 var NUMBER_OF_CHOICES = 4;
-var allChoices = testCards.map(function(c) { return c.answer; });
+var allChoices;
 
-if (testCards.length < NUMBER_OF_CHOICES) {
-  throw new Error("Need at least NUMBER_OF_CHOICES (" + NUMBER_OF_CHOICES + ") cards");
+exports.loadDeck = function() {
+  testCards = require('./testCards');
+  if (testCards.length < NUMBER_OF_CHOICES) {
+    throw new Error("Need at least NUMBER_OF_CHOICES (" + NUMBER_OF_CHOICES + ") cards");
+  }
+
+  allChoices = testCards.map(function(c) { return c.answer; })
+  return { then: function(callback) { callback(); }};
 }
 
 function shuffle(o){ //v1.0

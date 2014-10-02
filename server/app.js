@@ -1,7 +1,8 @@
 var Hapi = require('hapi');
-var roundHandler = require('./roundHandler.js');
+var roundHandler = require('./roundHandler');
 var storage = require('./storageService');
-var socket= require('./socketService.js');
+var socket= require('./socketService');
+var flashCardService = require('./flashCardService');
 
 var host = '0.0.0.0';
 var port = process.env.PORT || 4008;
@@ -45,8 +46,9 @@ server.route({
   handler: { file: 'web/build/index.html' }
 });
 
-server.start();
-console.log('Listening on port', port);
-roundHandler.startGame();
-socket.initializeSocket(server.listener, socketPath);
-
+flashCardService.loadDeck().then(function() {
+  server.start();
+  console.log('Listening on port', port);
+  roundHandler.startGame();
+  socket.initializeSocket(server.listener, socketPath);
+});
