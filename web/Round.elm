@@ -3,6 +3,7 @@ module Round where
 import Json
 import Parse
 import Card
+import Common (..)
 
 type Round = {
   startTime:Time,
@@ -13,15 +14,11 @@ type Round = {
 
 unm : { startTime:Maybe Time, card:Maybe Card.Card, choices:Maybe [String], time:Maybe Int } -> Maybe Round
 unm {startTime, card, choices, time} =
-  case startTime of
-    Nothing -> Nothing
-    Just s -> case card of
-      Nothing -> Nothing
-      Just c -> case choices of
-        Nothing -> Nothing
-        Just ch -> case time of
-          Nothing -> Nothing
-          Just t -> Just { startTime=s, card=c, choices=ch, time=t }
+  startTime `andThen` \s ->
+  card `andThen` \c ->
+  choices `andThen` \ch ->
+  time `andThen` \t ->
+  Just { startTime=s, card=c, choices=ch, time=t }
 
 parse : Json.Value -> Maybe Round
 parse json = 
