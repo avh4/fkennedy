@@ -34,7 +34,7 @@
     UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
     [self.imageView setImage:image];
 
-    self.choices = round[@"card"][@"choices"];
+    self.choices = round[@"choices"];
     [self.tableView reloadData];
 }];
 
