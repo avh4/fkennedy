@@ -7,6 +7,7 @@ exports.loadDeck = function() {
   if (testCards.length < NUMBER_OF_CHOICES) {
     throw new Error("Need at least NUMBER_OF_CHOICES (" + NUMBER_OF_CHOICES + ") cards");
   }
+  console.log("Loaded " + testCards.length + " cards");
 
   allChoices = testCards.map(function(c) { return c.answer; })
   return { then: function(callback) { callback(); }};
