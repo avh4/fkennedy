@@ -70,7 +70,7 @@ choiceColor answer b s =
   in (hsl (degrees 100) (if match then 0.9 else 0.2) (if match then 0.5 else 0.9))
 
 choice : String -> Bool -> String -> Element
-choice answer b s = container 160 60 middle <| color (choiceColor answer b s) <| container 140 40 middle <| choiceText s
+choice answer b s = container 260 60 middle <| color (choiceColor answer b s) <| container 200 40 middle <| choiceText s
 
 isOver : Round -> Time -> Bool
 isOver r now = case toTimer r.startTime r.time now of
@@ -81,12 +81,14 @@ view (w,h) round now = layers [
     background (w,h) now,
     case round of
       Just round -> 
-        flow down [
+        flow down ([
         container w 70 midBottom <| titleText "Name that dude!",
         container w 110 middle <| timerView round now,
         container w 300 middle <| fittedImage 300 300 round.card.question,
-        container w 40 midBottom <| plainText "Text the answer to 858-365-0360, or use the mobile app to play",
-        container w 100 middle <| flow right <| map (choice round.card.answer (isOver round now)) round.choices
-        ]
+        container w 40 midBottom <| plainText "Text the answer to 858-365-0360, or use the mobile app to play"
+        ] ++
+        let boxes = map (choice round.card.answer (isOver round now)) round.choices
+          in [ container w 80 midBottom <| flow right <| take 2 boxes
+             , container w 80 midBottom <| flow right <| drop 2 boxes ])
       Nothing -> container w 300 middle <| timerText "Waiting for next round..."
     ]
