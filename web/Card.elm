@@ -2,16 +2,12 @@ module Card where
 
 import Json
 import Parse
+import Common (..)
 
 type Card = {
   question:String,
   answer:String
 }
-
-andThen : Maybe a -> (a -> Maybe b) -> Maybe b
-andThen ma fn = case ma of
-  Just a -> fn a
-  Nothing -> Nothing
 
 unm : { question:Maybe String, answer:Maybe String} -> Maybe Card
 unm {question, answer} =
