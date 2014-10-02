@@ -12536,7 +12536,7 @@ Elm.CardPanel.make = function (_elm) {
                                                                               ,A3($Graphics$Element.container,
                                                                               _v8._0,
                                                                               40,
-                                                                              $Graphics$Element.midBottom)($Text.plainText("Text to 858-365-0360, or use the mobile app to play"))
+                                                                              $Graphics$Element.midBottom)($Text.plainText("Text the answer to 858-365-0360, or use the mobile app to play"))
                                                                               ,A3($Graphics$Element.container,
                                                                               _v8._0,
                                                                               100,
@@ -12591,53 +12591,34 @@ Elm.Round.make = function (_elm) {
    _E = _N.Error.make(_elm),
    $moduleName = "Round",
    $Card = Elm.Card.make(_elm),
+   $Common = Elm.Common.make(_elm),
    $Json = Elm.Json.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Parse = Elm.Parse.make(_elm),
    $Time = Elm.Time.make(_elm);
    var unm = function (_v0) {
       return function () {
-         return function () {
-            var _v2 = _v0.startTime;
-            switch (_v2.ctor)
-            {case "Just":
-               return function () {
-                    var _v4 = _v0.card;
-                    switch (_v4.ctor)
-                    {case "Just":
-                       return function () {
-                            var _v6 = _v0.choices;
-                            switch (_v6.ctor)
-                            {case "Just":
-                               return function () {
-                                    var _v8 = _v0.time;
-                                    switch (_v8.ctor)
-                                    {case "Just":
-                                       return $Maybe.Just({_: {}
-                                                          ,card: _v4._0
-                                                          ,choices: _v6._0
-                                                          ,startTime: _v2._0
-                                                          ,time: _v8._0});
-                                       case "Nothing":
-                                       return $Maybe.Nothing;}
-                                    _E.Case($moduleName,
-                                    "between lines 22 and 24");
-                                 }();
-                               case "Nothing":
-                               return $Maybe.Nothing;}
-                            _E.Case($moduleName,
-                            "between lines 20 and 24");
-                         }();
-                       case "Nothing":
-                       return $Maybe.Nothing;}
-                    _E.Case($moduleName,
-                    "between lines 18 and 24");
-                 }();
-               case "Nothing":
-               return $Maybe.Nothing;}
-            _E.Case($moduleName,
-            "between lines 16 and 24");
-         }();
+         return A2($Common.andThen,
+         _v0.startTime,
+         function (s) {
+            return A2($Common.andThen,
+            _v0.card,
+            function (c) {
+               return A2($Common.andThen,
+               _v0.choices,
+               function (ch) {
+                  return A2($Common.andThen,
+                  _v0.time,
+                  function (t) {
+                     return $Maybe.Just({_: {}
+                                        ,card: c
+                                        ,choices: ch
+                                        ,startTime: s
+                                        ,time: t});
+                  });
+               });
+            });
+         });
       }();
    };
    var parse = function (json) {
@@ -12692,32 +12673,23 @@ Elm.Card.make = function (_elm) {
    _A = _N.Array.make(_elm),
    _E = _N.Error.make(_elm),
    $moduleName = "Card",
+   $Common = Elm.Common.make(_elm),
    $Json = Elm.Json.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Parse = Elm.Parse.make(_elm);
    var unm = function (_v0) {
       return function () {
-         return function () {
-            var _v2 = _v0.question;
-            switch (_v2.ctor)
-            {case "Just":
-               return function () {
-                    var _v4 = _v0.answer;
-                    switch (_v4.ctor)
-                    {case "Just":
-                       return $Maybe.Just({_: {}
-                                          ,answer: _v4._0
-                                          ,question: _v2._0});
-                       case "Nothing":
-                       return $Maybe.Nothing;}
-                    _E.Case($moduleName,
-                    "between lines 15 and 17");
-                 }();
-               case "Nothing":
-               return $Maybe.Nothing;}
-            _E.Case($moduleName,
-            "between lines 13 and 17");
-         }();
+         return A2($Common.andThen,
+         _v0.question,
+         function (q) {
+            return A2($Common.andThen,
+            _v0.answer,
+            function (a) {
+               return $Maybe.Just({_: {}
+                                  ,answer: a
+                                  ,question: q});
+            });
+         });
       }();
    };
    var parse = function (json) {
@@ -12746,6 +12718,102 @@ Elm.Card.make = function (_elm) {
                       ,unm: unm
                       ,parse: parse};
    return _elm.Card.values;
+};Elm.Scores = Elm.Scores || {};
+Elm.Scores.make = function (_elm) {
+   "use strict";
+   _elm.Scores = _elm.Scores || {};
+   if (_elm.Scores.values)
+   return _elm.Scores.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Scores",
+   $Basics = Elm.Basics.make(_elm),
+   $Common = Elm.Common.make(_elm),
+   $Json = Elm.Json.make(_elm),
+   $Leaderboard = Elm.Leaderboard.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Parse = Elm.Parse.make(_elm);
+   var unm = function (_v0) {
+      return function () {
+         return A2($Common.andThen,
+         _v0.name,
+         function (n) {
+            return A2($Common.andThen,
+            _v0.score,
+            function (s) {
+               return $Maybe.Just({_: {}
+                                  ,name: n
+                                  ,score: s});
+            });
+         });
+      }();
+   };
+   var toPlayer = function (json) {
+      return function () {
+         switch (json.ctor)
+         {case "Object":
+            return unm({_: {}
+                       ,name: A3($Parse.p,
+                       "name",
+                       $Parse.string,
+                       json._0)
+                       ,score: A3($Parse.p,
+                       "score",
+                       $Parse.$int,
+                       json._0)});}
+         return $Maybe.Nothing;
+      }();
+   };
+   var parse = function (v) {
+      return function () {
+         switch (v.ctor)
+         {case "Just": switch (v._0.ctor)
+              {case "Array":
+                 return $Maybe.Just(A2($List.filterMap,
+                   toPlayer,
+                   v._0._0));}
+              break;}
+         return $Maybe.Nothing;
+      }();
+   };
+   _elm.Scores.values = {_op: _op
+                        ,unm: unm
+                        ,toPlayer: toPlayer
+                        ,parse: parse};
+   return _elm.Scores.values;
+};Elm.Common = Elm.Common || {};
+Elm.Common.make = function (_elm) {
+   "use strict";
+   _elm.Common = _elm.Common || {};
+   if (_elm.Common.values)
+   return _elm.Common.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _A = _N.Array.make(_elm),
+   _E = _N.Error.make(_elm),
+   $moduleName = "Common",
+   $Maybe = Elm.Maybe.make(_elm);
+   var andThen = F2(function (ma,
+   fn) {
+      return function () {
+         switch (ma.ctor)
+         {case "Just": return fn(ma._0);
+            case "Nothing":
+            return $Maybe.Nothing;}
+         _E.Case($moduleName,
+         "between lines 4 and 6");
+      }();
+   });
+   _elm.Common.values = {_op: _op
+                        ,andThen: andThen};
+   return _elm.Common.values;
 };Elm.Html = Elm.Html || {};
 Elm.Html.make = function (_elm) {
    "use strict";
@@ -12972,83 +13040,6 @@ Elm.Html.Events.make = function (_elm) {
                              ,getKeyboardEvent: getKeyboardEvent
                              ,getAnything: getAnything};
    return _elm.Html.Events.values;
-};Elm.Scores = Elm.Scores || {};
-Elm.Scores.make = function (_elm) {
-   "use strict";
-   _elm.Scores = _elm.Scores || {};
-   if (_elm.Scores.values)
-   return _elm.Scores.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   _A = _N.Array.make(_elm),
-   _E = _N.Error.make(_elm),
-   $moduleName = "Scores",
-   $Basics = Elm.Basics.make(_elm),
-   $Json = Elm.Json.make(_elm),
-   $Leaderboard = Elm.Leaderboard.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Parse = Elm.Parse.make(_elm);
-   var unm = function (_v0) {
-      return function () {
-         return function () {
-            var _v2 = _v0.name;
-            switch (_v2.ctor)
-            {case "Just":
-               return function () {
-                    var _v4 = _v0.score;
-                    switch (_v4.ctor)
-                    {case "Just":
-                       return $Maybe.Just({_: {}
-                                          ,name: _v2._0
-                                          ,score: _v4._0});
-                       case "Nothing":
-                       return $Maybe.Nothing;}
-                    _E.Case($moduleName,
-                    "between lines 12 and 14");
-                 }();
-               case "Nothing":
-               return $Maybe.Nothing;}
-            _E.Case($moduleName,
-            "between lines 10 and 14");
-         }();
-      }();
-   };
-   var toPlayer = function (json) {
-      return function () {
-         switch (json.ctor)
-         {case "Object":
-            return unm({_: {}
-                       ,name: A3($Parse.p,
-                       "name",
-                       $Parse.string,
-                       json._0)
-                       ,score: A3($Parse.p,
-                       "score",
-                       $Parse.$int,
-                       json._0)});}
-         return $Maybe.Nothing;
-      }();
-   };
-   var parse = function (v) {
-      return function () {
-         switch (v.ctor)
-         {case "Just": switch (v._0.ctor)
-              {case "Array":
-                 return $Maybe.Just(A2($List.filterMap,
-                   toPlayer,
-                   v._0._0));}
-              break;}
-         return $Maybe.Nothing;
-      }();
-   };
-   _elm.Scores.values = {_op: _op
-                        ,unm: unm
-                        ,toPlayer: toPlayer
-                        ,parse: parse};
-   return _elm.Scores.values;
 };Elm.Leaderboard = Elm.Leaderboard || {};
 Elm.Leaderboard.make = function (_elm) {
    "use strict";
