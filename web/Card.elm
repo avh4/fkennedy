@@ -8,13 +8,16 @@ type Card = {
   answer:String
 }
 
+andThen : Maybe a -> (a -> Maybe b) -> Maybe b
+andThen ma fn = case ma of
+  Just a -> fn a
+  Nothing -> Nothing
+
 unm : { question:Maybe String, answer:Maybe String} -> Maybe Card
 unm {question, answer} =
-  case question of
-    Nothing -> Nothing
-    Just q -> case answer of
-      Nothing -> Nothing
-      Just a -> Just { question=q, answer=a }
+  question `andThen` \q ->
+  answer `andThen` \a ->
+  Just { question=q, answer=a}
 
 parse : Json.Value -> Maybe Card
 parse json = 
