@@ -15,18 +15,34 @@ client.on('error', function(err){
 });
 
 var saveRound = function(round){
+  var next = undefined;
+  var finished = 0;
+  var total = 0;
   for(playerId in round.responses){
     console.log("Round ended: " + JSON.stringify(round));
     if(round.responses[playerId].correctAnswer) {
+      total += 1;
       client.multi()
         .sadd('player:correct:' + playerId, round.card.question)
         .scard('player:correct:' + playerId)
         .exec(function(err, res) {
           var count = res[1];
           client.hset('player:scores', playerId, count);
+          finished += 1;
+          if (finished >= total) {
+            next();
+            next = undefined;
+          }
       });
     }
   }
+  return { then: function(callback) {
+    if (finished >= total) {
+      callback();
+    } else {
+      next = callback;
+    }
+  }};
 }
 
 var adjs = { '0': 'Mellow', '1': 'Cool', '2': 'Peaceful', '3': 'Electric', '4': 'Determined', '5': 'Lucky', '6': 'Lovable', '7': 'Serene', '8': 'Wild', '9': 'Benevolent', 'a': 'Profound', 'b': 'Subtle', 'c': 'Loquacious', 'd': 'Charming', 'e': 'Ubiquitous', 'f': 'Fancy'};

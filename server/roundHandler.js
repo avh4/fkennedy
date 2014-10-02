@@ -42,13 +42,13 @@ var roundSummary = function(){
 
 var endRound = function(){
   socket.broadcast(roundSummary(), 'summary');
-  storage.saveRound(currentRound);
-  deactivateRound();
-  setTimeout(startNewRound, gameOptions.timeBetweenRounds);
-  storage.getScores()
-         .then(function(data){
-           socket.broadcast(data, 'scores');
-         });
+  storage.saveRound(currentRound).then(function() {
+    deactivateRound();
+    setTimeout(startNewRound, gameOptions.timeBetweenRounds);
+    storage.getScores().then(function(data){
+      socket.broadcast(data, 'scores');
+    });
+  });
 }
 
 var reportScore = function(userId, answer){
