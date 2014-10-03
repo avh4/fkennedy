@@ -15,11 +15,7 @@ function handleMessage(ws, m) {
   if (m.type == "name") {
     var playerId = m.message.id;
     var name = m.message.name;
-    storage.setPlayerName(playerId, name).then(function() {
-      storage.getPlayerName(playerId).then(function(name) {
-        ws.send(JSON.stringify({type: "playerInfo", message: {name: name}}));
-      });
-    });
+    storage.setPlayerName(playerId, name);
   }
 }
 
