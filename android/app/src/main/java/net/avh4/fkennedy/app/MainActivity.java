@@ -3,6 +3,8 @@ package net.avh4.fkennedy.app;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
@@ -36,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
     private ImageLoader imageLoader;
     private ImageView image;
     private String uniqueId;
-    private TextView welcome;
+    private EditText name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,31 @@ public class MainActivity extends ActionBarActivity {
 
         final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
 
-        welcome = (TextView) findViewById(R.id.welcome);
+        name = (EditText) findViewById(R.id.name);
+
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                try {
+                    JSONObject json = new JSONObject()
+                            .put("type", "name")
+                            .put("message", new JSONObject()
+                                    .put("name", s.toString())
+                                    .put("id", uniqueId));
+                    mWebSocketClient.send(json.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         ListView list = (ListView) findViewById(R.id.list);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices);
@@ -150,7 +176,7 @@ public class MainActivity extends ActionBarActivity {
                             if (type.equals("next")) {
                                 updateRound(message);
                             } else if (type.equals("playerInfo")) {
-                                welcome.setText("You are " + message.getString("name"));
+                                name.setText(message.getString("name"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
