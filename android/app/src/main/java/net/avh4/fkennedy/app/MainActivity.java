@@ -35,19 +35,23 @@ public class MainActivity extends ActionBarActivity {
     private ArrayAdapter<String> adapter;
     private ImageLoader imageLoader;
     private ImageView image;
+    private String uniqueId;
+    private TextView welcome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final String uniqueId = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
+        uniqueId = Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
         final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
+
+        welcome = (TextView) findViewById(R.id.welcome);
 
         ListView list = (ListView) findViewById(R.id.list);
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, choices);
@@ -94,8 +98,8 @@ public class MainActivity extends ActionBarActivity {
     private boolean updateRound(JSONObject round) throws JSONException {
         this.round = round;
         choices.clear();
+        if (!this.round.has("card")) return true;
         JSONObject card = this.round.getJSONObject("card");
-        if (card == null) return true;
         JSONArray choices_ = round.getJSONArray("choices");
         for (int i = 0; i < choices_.length(); i++) {
             choices.add(choices_.getString(i));
@@ -119,6 +123,18 @@ public class MainActivity extends ActionBarActivity {
             public void onOpen(ServerHandshake serverHandshake) {
                 Log.i("Websocket", "Opened");
                 mWebSocketClient.send("Hello from " + Build.MANUFACTURER + " " + Build.MODEL);
+                try {
+                    JSONObject json = new JSONObject()
+                            .put("type", "id")
+                            .put("message", new JSONObject()
+                                    .put("os", "Android")
+                                    .put("manufacturer", Build.MANUFACTURER)
+                                    .put("model", Build.MODEL)
+                                    .put("id", uniqueId));
+                    mWebSocketClient.send(json.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -128,9 +144,13 @@ public class MainActivity extends ActionBarActivity {
                     @Override
                     public void run() {
                         try {
-                            JSONObject message = new JSONObject(s);
-                            if (message.getString("type").equals("next")) {
-                                updateRound(message.getJSONObject("message"));
+                            JSONObject m = new JSONObject(s);
+                            String type = m.getString("type");
+                            JSONObject message = m.getJSONObject("message");
+                            if (type.equals("next")) {
+                                updateRound(message);
+                            } else if (type.equals("playerInfo")) {
+                                welcome.setText("You are " + message.getString("name"));
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
