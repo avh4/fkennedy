@@ -47,11 +47,20 @@ var saveRound = function(round){
 
 var adjs = { '0': 'Mellow', '1': 'Cool', '2': 'Peaceful', '3': 'Electric', '4': 'Determined', '5': 'Lucky', '6': 'Lovable', '7': 'Serene', '8': 'Wild', '9': 'Benevolent', 'a': 'Profound', 'b': 'Subtle', 'c': 'Loquacious', 'd': 'Charming', 'e': 'Ubiquitous', 'f': 'Fancy'};
 var animals = { '0': 'Marmot', '1': 'Cucumber', '2': 'Penguin', '3': 'Emu', '4': 'Dachshund', '5': 'Llama', '6': 'Lamprey', '7': 'Skylark', '8': 'Wildebeest', '9': 'Barnacle', 'a': 'Osprey', 'b': 'Antelope', 'c': 'Leopard', 'd': 'Chipmunk', 'e': 'Yak', 'f': 'Fox'};
-var anonymouseName = function(playerId) {
+var anonymousName = function(playerId) {
   var shasum = crypto.createHash('sha1');
   shasum.update(playerId);
   var digest = shasum.digest('hex');
   return adjs[digest[3]] + " " + animals[digest[5]];
+}
+
+var getPlayerName = function(playerId) {
+  var next = undefined;
+  client.hget('player:names', playerId, function(err, res) {
+    var name = res || anonymousName(playerId);
+    next(name);
+  })
+  return { then: function(callback) { next = callback; }};
 }
 
 var getScores = function(){
@@ -66,24 +75,27 @@ var getScores = function(){
           var scores = replies[0];
           var names = replies[1] || {};
           for(var playerId in scores){
-            var name = names[playerId] || anonymouseName(playerId);
+            var name = names[playerId] || anonymousName(playerId);
             scoreboard.push({ name: name, score: 100 * scores[playerId] / numberOfCards });
           }
           next(scoreboard);
         });
 
-  return {then: function(callback){
-    next = callback;
-  }};
+  return {then: function(callback){ next = callback;}};
 }
 
 var setPlayerName = function(playerId, name) {
-  client.hset('player:names', playerId, name);
+  var next = undefined;
+  client.hset('player:names', playerId, name, function(err, res) {
+    next();
+  });
+  return {then: function(callback){ next = callback;}};
 }
 
 module.exports = {
   saveRound: saveRound,
   getScores: getScores,
-  setPlayerName: setPlayerName
+  setPlayerName: setPlayerName,
+  getPlayerName: getPlayerName
 }
 
