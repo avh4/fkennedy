@@ -23,7 +23,7 @@ server.route({
   handler: function(request, reply){
     var message = request.url.query;
     var playerId = message.From || message.msisdn;
-    var answer = message.Text || message.text;
+    var answer = message.Text || message.text || message.Body;
     roundHandler.reportScore(playerId, answer);
     reply('200: OK');
   }
