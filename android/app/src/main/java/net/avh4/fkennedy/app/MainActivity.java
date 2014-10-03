@@ -54,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
         final AndroidHttpClient httpClient = new AndroidHttpClient("http://" + HOST);
 
         name = (EditText) findViewById(R.id.name);
+        name.clearFocus();
 
         name.addTextChangedListener(new TextWatcher() {
             @Override
@@ -172,6 +173,7 @@ public class MainActivity extends ActionBarActivity {
                         try {
                             JSONObject m = new JSONObject(s);
                             String type = m.getString("type");
+                            if (type.equals("scores")) return;
                             JSONObject message = m.getJSONObject("message");
                             if (type.equals("next")) {
                                 updateRound(message);

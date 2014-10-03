@@ -16,11 +16,18 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp"
             >
+        <!-- suppress auto-focus of the EditText -->
+        <LinearLayout
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                tools:ignore="UselessLeaf"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="You are "
+                android:text="You are"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 />
@@ -32,6 +39,8 @@
                 android:layout_weight="1"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:imeOptions="actionDone"
+                android:singleLine="true"
                 />
 
     </LinearLayout>
