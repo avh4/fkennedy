@@ -85,11 +85,7 @@ var getScores = function(){
 }
 
 var setPlayerName = function(playerId, name) {
-  var next = undefined;
-  client.hset('player:names', playerId, name, function(err, res) {
-    next();
-  });
-  return {then: function(callback){ next = callback;}};
+  client.hset('player:names', playerId, name);
 }
 
 module.exports = {
